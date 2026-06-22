@@ -2144,6 +2144,7 @@ def llama_flash_attn2_forward_SnapKV(
     **kwargs,
 ) -> Tuple[torch.Tensor, Optional[torch.Tensor], Optional[Tuple[torch.Tensor]]]:
     # [SnapKV] register kv_cluster
+    # print(f"max_capacity_prompt is : {self.max_capacity_prompt}")
     init_snapkv(self)
     # LlamaFlashAttention2 attention does not support output_attentions
     if "padding_mask" in kwargs:

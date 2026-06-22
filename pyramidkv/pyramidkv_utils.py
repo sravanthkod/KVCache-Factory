@@ -236,6 +236,10 @@ class PyramidKVCluster():
             else:
                 raise ValueError('Pooling method not supported')
             indices = attn_cache.topk(self.max_capacity_prompt - self.window_size, dim=-1).indices
+            # NAS objective: evicted attention sum (lower = evicting unimportant tokens)
+            kept_attn = attn_cache.gather(dim=-1, index=indices).sum(dim=-1)
+            total_attn = attn_cache.sum(dim=-1)
+            self.evicted_attn_sum = (total_attn - kept_attn).mean().item()
             indices = indices.unsqueeze(-1).expand(-1, -1, -1, head_dim)
             
             if self.merge is not None:
@@ -268,6 +272,10 @@ class PyramidKVCluster():
             else:
                 raise ValueError('Pooling method not supported')
             indices = attn_cache.topk(max_capacity_prompt, dim=-1).indices
+            # NAS objective: evicted attention sum (lower = evicting unimportant tokens)
+            kept_attn = attn_cache.gather(dim=-1, index=indices).sum(dim=-1)
+            total_attn = attn_cache.sum(dim=-1)
+            self.evicted_attn_sum = (total_attn - kept_attn).mean().item()
             indices = indices.unsqueeze(-1).expand(-1, -1, -1, head_dim)
 
             if self.merge is not None:
@@ -309,7 +317,7 @@ class SnapKVCluster():
         assert key_states.shape[-2] == query_states.shape[-2]
         bsz, num_heads, q_len, head_dim = query_states.shape
         
-        print(f"SnapKV max_capacity_prompt {self.max_capacity_prompt}")
+        # print(f"SnapKV max_capacity_prompt {self.max_capacity_prompt}")
         
         if q_len < self.max_capacity_prompt:
             return key_states, value_states
@@ -325,6 +333,7 @@ class SnapKVCluster():
 
             attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query_states.dtype)
             attn_weights_sum = attn_weights[:, :, -self.window_size:, : -self.window_size].sum(dim = -2)
+            # print(f"Attention weight sum before pool is: {attn_weights_sum}")
             if self.pooling == 'avgpool':
                 attn_cache = F.avg_pool1d(attn_weights_sum, kernel_size = self.kernel_size, padding=self.kernel_size//2, stride=1)
             elif self.pooling == 'maxpool':
@@ -332,6 +341,13 @@ class SnapKVCluster():
             else:
                 raise ValueError('Pooling method not supported')
             indices = attn_cache.topk(self.max_capacity_prompt - self.window_size, dim=-1).indices
+            # NAS objective: evicted attention sum (lower = evicting unimportant tokens)
+            kept_attn = attn_cache.gather(dim=-1, index=indices).sum(dim=-1)
+            total_attn = attn_cache.sum(dim=-1)
+            self.evicted_attn_sum = (total_attn - kept_attn).mean().item()
+            self.total_attn_sum = total_attn.mean().item()
+            self.kept_attn = kept_attn.mean().item()
+
             indices = indices.unsqueeze(-1).expand(-1, -1, -1, head_dim)
 
             if self.merge is not None:
@@ -418,6 +434,10 @@ class L2NormCluster():
             head_dim = key_states.size(-1)
             token_norms = torch.norm(key_states, p=2, dim=-1)
             sorted_indices = token_norms.squeeze(-1).argsort(dim=-1)
+            # NAS objective: evicted attention = sum of norms of evicted tokens (lower = evicting unimportant tokens)
+            kept_norms = token_norms.squeeze(-1).topk(self.max_capacity_prompt, dim=-1).values.sum(dim=-1)
+            total_norms = token_norms.squeeze(-1).sum(dim=-1)
+            self.evicted_attn_sum = (total_norms - kept_norms).mean().item()
             sorted_indices_expanded = sorted_indices.unsqueeze(-1).expand(-1, -1, -1, head_dim)
 
             sorted_key_states = key_states.gather(dim=2, index=sorted_indices_expanded)
@@ -502,6 +522,10 @@ class CAMKVCluster:
                 value_states[:, :, token_index - recent_budget + 1:token_index - recent_budget + merge_budget + 1, :] += score1.unsqueeze(2)
 
             indices = attn_cache.topk(self.max_capacity_prompt - self.window_size, dim=-1).indices
+            # NAS objective: evicted attention sum (lower = evicting unimportant tokens)
+            kept_attn = attn_cache.gather(dim=-1, index=indices).sum(dim=-1)
+            total_attn = attn_cache.sum(dim=-1)
+            self.evicted_attn_sum = (total_attn - kept_attn).mean().item()
             indices = indices.unsqueeze(-1).expand(-1, -1, -1, head_dim)
             k_past_compress = key_states[:, :, :-self.window_size, :].gather(dim = 2, index = indices)
             v_past_compress = value_states[:, :, :-self.window_size, :].gather(dim = 2, index = indices)
@@ -560,6 +584,10 @@ class H2OKVCluster():
             #     raise ValueError('Pooling method not supported')
             attn_cache = attn_weights_sum
             indices = attn_cache.topk(self.max_capacity_prompt - self.window_size, dim=-1).indices
+            # NAS objective: evicted attention sum (lower = evicting unimportant tokens)
+            kept_attn = attn_cache.gather(dim=-1, index=indices).sum(dim=-1)
+            total_attn = attn_cache.sum(dim=-1)
+            self.evicted_attn_sum = (total_attn - kept_attn).mean().item()
             indices = indices.unsqueeze(-1).expand(-1, -1, -1, head_dim)
 
             if self.merge is not None:
@@ -601,8 +629,12 @@ class StreamingLLMKVCluster():
         print(f"StreamingLLM max_capacity_prompt {self.max_capacity_prompt}")
         
         if q_len < self.max_capacity_prompt:
+            self.evicted_attn_sum = 0.0
             return key_states, value_states
         else:
+            # StreamingLLM uses position-based eviction (no attention scoring)
+            # Set evicted_attn_sum = 0.0 since eviction is not attention-based
+            self.evicted_attn_sum = 0.0
             
             indices = torch.tensor(range(self.max_capacity_prompt - self.window_size), dtype=torch.int64).to(key_states.device)
             indices = indices.unsqueeze(0).unsqueeze(0).unsqueeze(-1).repeat(bsz, num_heads, 1, head_dim)
@@ -700,6 +732,7 @@ class AdaKVCluster():
         if self.base_capacity > attn_score.size(-1):
             init_metadata(num_heads, [q_len] * num_heads, q_len * num_heads, q_len)
             # not compress
+            self.evicted_attn_sum = 0.0
             return key_states.reshape(-1, head_dim), value_states.reshape(-1, head_dim)
 
         # if you need to weight the attn_score
@@ -717,6 +750,16 @@ class AdaKVCluster():
         head_adaptive_capacity.scatter_add_(-1,sorted_indices,torch.ones_like(sorted_indices,dtype=head_adaptive_capacity.dtype),)
         assert head_adaptive_capacity.sum().item() == num_heads*self.base_capacity
         head_adaptive_capacity = torch.round(head_adaptive_capacity * (1-self.floor_ratio) + self.floor_capacity).int()
+        
+        # NAS objective: evicted attention sum (lower = evicting unimportant tokens)
+        # Compute per-head: kept attention = sum of top-k scores, evicted = total - kept
+        total_attn = attn_score.sum(dim=-1)  # (bsz, num_heads)
+        kept_attn = torch.zeros(bsz, num_heads, device=_device)
+        for head_idx in range(num_heads):
+            cap = head_adaptive_capacity[0][head_idx].item()
+            kept_attn[0, head_idx] = sorted_attn_score[0, head_idx, :cap].sum()
+        self.evicted_attn_sum = (total_attn - kept_attn).mean().item()
+        
         sorted_attn_score_indices = sorted_attn_score_indices.split(1,dim=1)
 
         heads_key_states = []
@@ -834,10 +877,20 @@ class HeadKVCluster():
         if self.base_capacity > attn_score.size(-1):
             init_metadata(num_heads, [q_len] * num_heads, q_len * num_heads, q_len)
             # not compress
+            self.evicted_attn_sum = 0.0
             return key_states.reshape(-1, head_dim), value_states.reshape(-1, head_dim)
 
         # if you need to weight the attn_score
-        _,sorted_attn_score_indices = attn_score.sort(dim=-1,descending=True)
+        sorted_attn_score,sorted_attn_score_indices = attn_score.sort(dim=-1,descending=True)
+        
+        # NAS objective: evicted attention sum (lower = evicting unimportant tokens)
+        total_attn = attn_score.sum(dim=-1)  # (bsz, num_heads)
+        kept_attn = torch.zeros(bsz, num_heads, device=_device)
+        for head_idx in range(num_heads):
+            cap = self.head_adaptive_capacity[self.layer_idx][head_idx].item()
+            kept_attn[0, head_idx] = sorted_attn_score[0, head_idx, :cap].sum()
+        self.evicted_attn_sum = (total_attn - kept_attn).mean().item()
+        
         sorted_attn_score_indices = sorted_attn_score_indices.split(1,dim=1)
 
         heads_key_states = []
@@ -890,15 +943,23 @@ def init_pyramidkv(self, num_hidden_layers):
         if not hasattr(self.config, 'merge'):
             self.config.merge = None
     
-    
+    # Read per-layer values from instance attributes first (set by set_model_budgets),
+    # fall back to shared config. This is critical because all layers share the same
+    # config object, so config.max_capacity_prompt only holds the last layer's value.
+    _window_size = getattr(self, 'window_size', self.config.window_size)
+    _max_capacity_prompt = getattr(self, 'max_capacity_prompt', self.config.max_capacity_prompt)
+    _kernel_size = getattr(self, 'kernel_size', self.config.kernel_size)
+    _pooling = getattr(self, 'pooling', self.config.pooling)
+    _merge = getattr(self, 'merge', self.config.merge)
+
     self.kv_cluster = PyramidKVCluster( 
         num_hidden_layers = num_hidden_layers,
         layer_idx = self.layer_idx,
-        window_size = self.config.window_size, 
-        max_capacity_prompt = self.config.max_capacity_prompt, 
-        kernel_size = self.config.kernel_size,
-        pooling = self.config.pooling,
-        merge = self.config.merge,
+        window_size = _window_size, 
+        max_capacity_prompt = _max_capacity_prompt, 
+        kernel_size = _kernel_size,
+        pooling = _pooling,
+        merge = _merge,
         )
  
 def init_snapkv(self):
@@ -913,14 +974,22 @@ def init_snapkv(self):
             self.config.pooling = 'avgpool'
         if not hasattr(self.config, 'merge'):
             self.config.merge = None
-    
-    
+
+    # Read per-layer values from instance attributes first (set by set_model_budgets),
+    # fall back to shared config. This is critical because all layers share the same
+    # config object, so config.max_capacity_prompt only holds the last layer's value.
+    _window_size = getattr(self, 'window_size', self.config.window_size)
+    _max_capacity_prompt = getattr(self, 'max_capacity_prompt', self.config.max_capacity_prompt)
+    _kernel_size = getattr(self, 'kernel_size', self.config.kernel_size)
+    _pooling = getattr(self, 'pooling', self.config.pooling)
+    _merge = getattr(self, 'merge', self.config.merge)
+
     self.kv_cluster = SnapKVCluster( 
-        window_size = self.config.window_size, 
-        max_capacity_prompt = self.config.max_capacity_prompt, 
-        kernel_size = self.config.kernel_size,
-        pooling = self.config.pooling,
-        merge = self.config.merge,
+        window_size = _window_size, 
+        max_capacity_prompt = _max_capacity_prompt, 
+        kernel_size = _kernel_size,
+        pooling = _pooling,
+        merge = _merge,
         )
 
 def init_think(self):
@@ -939,16 +1008,26 @@ def init_think(self):
             self.config.recent_size = 32
         if not hasattr(self.config, 'ratio'):
             self.config.ratio = 0.4
-    
-    
+
+    # Read per-layer values from instance attributes first (set by set_model_budgets),
+    # fall back to shared config.
+    _window_size = getattr(self, 'window_size', self.config.window_size)
+    _max_capacity_prompt = getattr(self, 'max_capacity_prompt', self.config.max_capacity_prompt)
+    _kernel_size = getattr(self, 'kernel_size', self.config.kernel_size)
+    _pooling = getattr(self, 'pooling', self.config.pooling)
+    _merge = getattr(self, 'merge', self.config.merge)
+    _recent_size = getattr(self, 'recent_size', self.config.recent_size)
+    _ratio = getattr(self, 'ratio', self.config.ratio)
+
+    print(f"_max_capacity_prompt is : {_max_capacity_prompt}")
     self.kv_cluster = SnapKVCluster( 
-        window_size = self.config.window_size, 
-        max_capacity_prompt = self.config.max_capacity_prompt, 
-        kernel_size = self.config.kernel_size,
-        pooling = self.config.pooling,
-        merge = self.config.merge,
-        recent_size = self.config.recent_size,
-        ratio = self.config.ratio
+        window_size = _window_size, 
+        max_capacity_prompt = _max_capacity_prompt, 
+        kernel_size = _kernel_size,
+        pooling = _pooling,
+        merge = _merge,
+        recent_size = _recent_size,
+        ratio = _ratio
         )
 
 def init_l2norm(self):
@@ -961,8 +1040,12 @@ def init_l2norm(self):
         if not hasattr(self.config, 'skip_layers'):
             self.config.skip_layers = [0,1]
 
+    # Read per-layer values from instance attributes first (set by set_model_budgets),
+    # fall back to shared config.
+    _max_capacity_prompt = getattr(self, 'max_capacity_prompt', self.config.max_capacity_prompt)
+
     self.kv_cluster = L2NormCluster( 
-        max_capacity_prompt = self.config.max_capacity_prompt,
+        max_capacity_prompt = _max_capacity_prompt,
         layer_idx = self.layer_idx,
         skip_layers = self.config.skip_layers
     )
@@ -977,14 +1060,21 @@ def init_CAM(self):
             self.config.kernel_size = 5
         if not hasattr(self.config, 'pooling'):
             self.config.pooling = 'avgpool'
-    
-    
+
+    # Read per-layer values from instance attributes first (set by set_model_budgets),
+    # fall back to shared config.
+    _window_size = getattr(self, 'window_size', self.config.window_size)
+    _max_capacity_prompt = getattr(self, 'max_capacity_prompt', self.config.max_capacity_prompt)
+    _kernel_size = getattr(self, 'kernel_size', self.config.kernel_size)
+    _pooling = getattr(self, 'pooling', self.config.pooling)
+    _merge = getattr(self, 'merge', self.config.merge)
+
     self.kv_cluster = CAMKVCluster(
-        window_size = self.config.window_size, 
-        max_capacity_prompt = self.config.max_capacity_prompt, 
-        kernel_size = self.config.kernel_size,
-        pooling = self.config.pooling,
-        merge = self.config.merge,
+        window_size = _window_size, 
+        max_capacity_prompt = _max_capacity_prompt, 
+        kernel_size = _kernel_size,
+        pooling = _pooling,
+        merge = _merge,
         )
 
 def init_H2O(self):
@@ -999,13 +1089,21 @@ def init_H2O(self):
             self.config.pooling = 'avgpool'
         if not hasattr(self.config, 'merge'):
             self.config.merge = None
-    
+
+    # Read per-layer values from instance attributes first (set by set_model_budgets),
+    # fall back to shared config.
+    _window_size = getattr(self, 'window_size', self.config.window_size)
+    _max_capacity_prompt = getattr(self, 'max_capacity_prompt', self.config.max_capacity_prompt)
+    _kernel_size = getattr(self, 'kernel_size', self.config.kernel_size)
+    _pooling = getattr(self, 'pooling', self.config.pooling)
+    _merge = getattr(self, 'merge', self.config.merge)
+
     self.kv_cluster = H2OKVCluster(
-        window_size = self.config.window_size, 
-        max_capacity_prompt = self.config.max_capacity_prompt, 
-        kernel_size = self.config.kernel_size,
-        pooling = self.config.pooling,
-        merge = self.config.merge,
+        window_size = _window_size, 
+        max_capacity_prompt = _max_capacity_prompt, 
+        kernel_size = _kernel_size,
+        pooling = _pooling,
+        merge = _merge,
         )
 
 def init_StreamingLLM(self):
@@ -1020,14 +1118,21 @@ def init_StreamingLLM(self):
             self.config.pooling = 'avgpool'
         if not hasattr(self.config, 'merge'):
             self.config.merge = None
-    
-    
+
+    # Read per-layer values from instance attributes first (set by set_model_budgets),
+    # fall back to shared config.
+    _window_size = getattr(self, 'window_size', self.config.window_size)
+    _max_capacity_prompt = getattr(self, 'max_capacity_prompt', self.config.max_capacity_prompt)
+    _kernel_size = getattr(self, 'kernel_size', self.config.kernel_size)
+    _pooling = getattr(self, 'pooling', self.config.pooling)
+    _merge = getattr(self, 'merge', self.config.merge)
+
     self.kv_cluster = StreamingLLMKVCluster(
-        window_size = self.config.window_size, 
-        max_capacity_prompt = self.config.max_capacity_prompt, 
-        kernel_size = self.config.kernel_size,
-        pooling = self.config.pooling,
-        merge = self.config.merge,
+        window_size = _window_size, 
+        max_capacity_prompt = _max_capacity_prompt, 
+        kernel_size = _kernel_size,
+        pooling = _pooling,
+        merge = _merge,
         )
 
 def init_adakv(self):
@@ -1044,19 +1149,24 @@ def init_adakv(self):
             self.config.floor_ratio = 0.2
         if not hasattr(self.config, 'normalize'):
             self.config.normalize = True
-    # max_capacity_prompt --> base_capacity
-    # init only once
-    if not hasattr(self, "kv_cluster"):
-        self.kv_cluster = AdaKVCluster( 
-            num_hidden_layers = self.config.num_hidden_layers,
-            layer_idx = self.layer_idx,
-            window_size = self.config.window_size, 
-            max_capacity_prompt = self.config.max_capacity_prompt, 
-            kernel_size = self.config.kernel_size,
-            pooling = self.config.pooling,
-            floor = self.config.floor,
-            normalize = self.config.normalize
-            )
+
+    # Read per-layer values from instance attributes first (set by set_model_budgets),
+    # fall back to shared config.
+    _window_size = getattr(self, 'window_size', self.config.window_size)
+    _max_capacity_prompt = getattr(self, 'max_capacity_prompt', self.config.max_capacity_prompt)
+    _kernel_size = getattr(self, 'kernel_size', self.config.kernel_size)
+    _pooling = getattr(self, 'pooling', self.config.pooling)
+
+    self.kv_cluster = AdaKVCluster( 
+        num_hidden_layers = self.config.num_hidden_layers,
+        layer_idx = self.layer_idx,
+        window_size = _window_size, 
+        max_capacity_prompt = _max_capacity_prompt, 
+        kernel_size = _kernel_size,
+        pooling = _pooling,
+        floor = self.config.floor,
+        normalize = self.config.normalize
+        )
 
 
 def init_headkv(self):
@@ -1071,15 +1181,20 @@ def init_headkv(self):
             self.config.pooling = 'maxpool'
         if not hasattr(self.config, 'head_capacity'):
             raise ValueError("Must have head_capacity")
-    # max_capacity_prompt --> base_capacity
-    # init only once
-    if not hasattr(self, "kv_cluster"):
-        self.kv_cluster = HeadKVCluster( 
-            num_hidden_layers = self.config.num_hidden_layers,
-            layer_idx = self.layer_idx,
-            window_size = self.config.window_size, 
-            max_capacity_prompt = self.config.max_capacity_prompt, 
-            kernel_size = self.config.kernel_size,
-            pooling = self.config.pooling,
-            head_capacity=self.config.head_capacity
-            )
+
+    # Read per-layer values from instance attributes first (set by set_model_budgets),
+    # fall back to shared config.
+    _window_size = getattr(self, 'window_size', self.config.window_size)
+    _max_capacity_prompt = getattr(self, 'max_capacity_prompt', self.config.max_capacity_prompt)
+    _kernel_size = getattr(self, 'kernel_size', self.config.kernel_size)
+    _pooling = getattr(self, 'pooling', self.config.pooling)
+
+    self.kv_cluster = HeadKVCluster( 
+        num_hidden_layers = self.config.num_hidden_layers,
+        layer_idx = self.layer_idx,
+        window_size = _window_size, 
+        max_capacity_prompt = _max_capacity_prompt, 
+        kernel_size = _kernel_size,
+        pooling = _pooling,
+        head_capacity=self.config.head_capacity
+        )
