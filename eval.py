@@ -97,24 +97,17 @@ if __name__ == '__main__':
         "repobench-p"
         ]
     
-    results_list = [
-        ["dataset"],
-        ["FullKV"],
-        ["random"],
-        ["SnapKV"],
-        ["StreamingLLM"],
-        ["H2O"],
-        ["PyramidKV"],
-        ["CAM"],
-        ["L2Norm"],
-        ["ThinK"],
-    ]
-    
+    # Single source of truth for row order: results_list rows are generated from
+    # this list, so scores can never land under another method's label.
+    methods = ["FullKV", "random", "SnapKV", "StreamingLLM", "H2O", "PyramidKV",
+               "L2Norm", "CAM", "ThinK", "AdaKV", "HeadKV"]
+    results_list = [["dataset"]] + [[m] for m in methods]
+
     for dataset in dataset_list:
-        
+
         results_list[0].append(dataset)
-        
-        for idx, method in enumerate(["FullKV", "random", "SnapKV", "StreamingLLM", "H2O", "PyramidKV", "L2Norm","CAM","ThinK"]):
+
+        for idx, method in enumerate(methods):
         # for idx, method in enumerate(["H2_global", "PyramidKV_global", "local"]):
             try:
                 args.method = method
