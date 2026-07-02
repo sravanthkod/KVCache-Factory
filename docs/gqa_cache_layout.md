@@ -108,13 +108,21 @@ not by unit tests alone.
    in kv_head mode (25.6 vs 25.4 tok/s @2048). Accuracy parity accepted; the
    flag still defaults to `query_head` so published numbers stay
    reproducible.
-4. **Generalize.** `AdaKV`/`HeadKV` kv-head support is IMPLEMENTED (2026-07-02),
-   pending GPU validation. Budget semantics: the per-stored-head budget is
-   preserved, so total cache bytes shrink by `num_key_value_groups`; HeadKV's
-   per-query-head capacity tables are group-mean-reduced to per-KV-head
-   capacities. `run_longbench.py`, `run_ruler.py`, and
-   `run_needle_in_haystack.py` accept `--kv_cache_granularity kv_head` for
-   them. `ThinK` remains query-head-granular and is still rejected at startup.
+4. **Generalize.** DONE (2026-07-02): `AdaKV`/`HeadKV` kv-head support landed
+   (`c97f9d7`) and GPU-validated. Budget semantics: the per-stored-head budget
+   is preserved, so total cache bytes shrink by `num_key_value_groups`;
+   HeadKV's per-query-head capacity tables are group-mean-reduced; decode uses
+   a GQA varlen layout (one sequence per KV head carrying its group of query
+   heads). LongBench 6-task A/B @128: AdaKV avg 50.36 (query_head) vs 49.80
+   (kv_head), HeadKV 50.94 vs 50.69 — per-head-budget methods are slightly
+   more sensitive to group reduction than plain top-k, still near parity.
+   AdaKV @2048 memory/latency: peak 22.49 -> 21.74 GiB, decode 19.4 -> 21.2
+   tok/s (8-segment flatten cache). RULER @4096 (100 ex/task): SnapKV avg
+   51.5 (q) vs 51.7 (kv), PyramidKV 48.5 vs 47.5; caveat: aggregation-breadth
+   tasks (cwe/fwe) lose slightly more in kv_head mode. NIAH (SnapKV@128,
+   1k-8k x 10 depths): 6.79 (q) vs 6.85 (kv). `run_ruler.py` and
+   `run_needle_in_haystack.py` accept the same flags. `ThinK` remains
+   query-head-granular and is rejected at startup.
 
 The query-head-granularity layout stays the default. This matches the
 maintainer's note on #49 that a correct refactor needs a wider audit rather
