@@ -42,7 +42,8 @@ def apply_monkeypatch(model_path, method):
 
 
 def configure_kv_method(model, args):
-    if args.method.lower() == "fullkv":
+    # headinfer is lossless offloading: no compression budget/window to configure
+    if args.method.lower() in ("fullkv", "headinfer"):
         return
 
     if not hasattr(model, "model") or not hasattr(model.model, "layers"):
@@ -102,6 +103,10 @@ def run_once(model, tokenizer, prompt, args):
     }
     if args.do_sample:
         generation_kwargs.update({"temperature": args.temperature, "top_p": args.top_p})
+    if args.method.lower() == "headinfer":
+        from pyramidkv.headinfer import HeadwiseOffloadedCache
+
+        generation_kwargs["past_key_values"] = HeadwiseOffloadedCache()
     output = model.generate(**inputs, **generation_kwargs)
     synchronize()
     elapsed = time.perf_counter() - start
@@ -120,6 +125,8 @@ def run_once(model, tokenizer, prompt, args):
 
 def main(args):
     set_seed(args.seed)
+    if args.method.lower() == "headinfer" and args.attn_implementation != "flash_attention_2":
+        raise ValueError("method 'headinfer' only patches the flash_attention_2 path; use --attn_implementation flash_attention_2.")
     prompt = read_prompt(args)
     apply_monkeypatch(args.model_path, args.method)
 

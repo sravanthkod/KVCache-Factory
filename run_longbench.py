@@ -263,7 +263,9 @@ def main(args):
             max_capacity_prompts = round(batch_input_ids.shape[1] * args.max_capacity_prompts_ratio)
         
         
-        if args.method != "FullKV":
+        # HeadInfer is a lossless offloading method: it has no compression
+        # budget/window to configure, so it skips this block entirely.
+        if args.method != "FullKV" and args.method.lower() != "headinfer":
             if args.method.lower() in ["snapkv","pyramidkv","h2o","cam", "l2norm", "adakv", "headkv", "think"]:
                 window_sizes = 8
             elif args.method.lower() in ["streamingllm"]:
@@ -327,6 +329,12 @@ def main(args):
             axis_key=args.axis_key,
             axis_value=args.axis_value,
         )
+        extra_generation_kwargs = {}
+        if args.method.lower() == "headinfer":
+            from pyramidkv.headinfer import HeadwiseOffloadedCache
+            # Fresh head-wise offloaded cache per sample; HeadInfer needs its
+            # cache passed explicitly since generate() defaults to DynamicCache.
+            extra_generation_kwargs["past_key_values"] = HeadwiseOffloadedCache()
         if cache_config is None:
             output = model.generate(
                 **tokenized_prompts,
@@ -336,7 +344,8 @@ def main(args):
                 do_sample=False,
                 temperature=1.0,
                 min_length=context_length+1,
-                eos_token_id=eos_token_ids
+                eos_token_id=eos_token_ids,
+                **extra_generation_kwargs
             )
         else:
             output = model.generate(
@@ -444,6 +453,12 @@ if __name__ == "__main__":
 
     if args.method.lower() == "think" and args.attn_implementation != "eager":
         raise ValueError("method 'think' only patches the eager attention path; with --attn_implementation flash_attention_2/sdpa it silently runs stock HF attention. Use --attn_implementation eager.")
+
+    if args.method.lower() == "headinfer":
+        if args.attn_implementation != "flash_attention_2":
+            raise ValueError("method 'headinfer' only patches the flash_attention_2 path; with --attn_implementation sdpa/eager it silently runs stock HF attention. Use --attn_implementation flash_attention_2.")
+        if args.quant_method:
+            raise ValueError("method 'headinfer' keeps the full KV cache and streams it between CPU and GPU; it is not compatible with --quant_method.")
 
     if args.kv_cache_granularity == "kv_head" and args.method.lower() not in ["snapkv", "pyramidkv", "h2o", "streamingllm", "cam", "l2norm", "adakv", "headkv"]:
         raise ValueError(f"kv_cache_granularity='kv_head' is not supported for method {args.method!r}; supported methods: snapkv, pyramidkv, h2o, streamingllm, cam, l2norm, adakv, headkv.")

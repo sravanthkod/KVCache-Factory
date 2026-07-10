@@ -15,6 +15,8 @@ from pyramidkv.mistral_model import adaptive_MistralModel_forward
 from pyramidkv.llama_model import prepare_inputs_for_generation_llama, prepare_inputs_for_generation_llama_new
 from pyramidkv.mistral_model import prepare_inputs_for_generation_mistral, prepare_inputs_for_generation_mistral_new
 
+from pyramidkv.headinfer import llama_flash_attn2_forward_HeadInfer, mistral_flash_attn2_forward_HeadInfer
+
 
 def replace_llama(method, model_name=None):
    
@@ -82,6 +84,12 @@ def replace_llama(method, model_name=None):
         transformers.models.llama.modeling_llama.LlamaModel.forward = think_model_forward
         transformers.models.llama.modeling_llama.LlamaAttention.forward = llama_attn_forward_SnapKV_ThinK
 
+    elif method == "headinfer":
+        print("Using HeadInfer!")
+        # HeadInfer only has a FlashAttention-2 path (the runners enforce
+        # --attn_implementation flash_attention_2 for this method).
+        transformers.models.llama.modeling_llama.LlamaFlashAttention2.forward = llama_flash_attn2_forward_HeadInfer
+
 
     if method not in ["fullkv"]:
         transformers.models.llama.modeling_llama.LlamaForCausalLM.prepare_inputs_for_generation = prepare_inputs_for_generation_llama_new
@@ -140,6 +148,12 @@ def replace_mistral(method):
         transformers.models.mistral.modeling_mistral.MistralAttention.forward = mistral_flash_attn2_forward_HeadKV
         transformers.models.mistral.modeling_mistral.MistralFlashAttention2.forward = mistral_flash_attn2_forward_HeadKV
         transformers.models.mistral.modeling_mistral.MistralSdpaAttention.forward = mistral_flash_attn2_forward_HeadKV
-    
+
+    elif method == "headinfer":
+        print("Using HeadInfer!")
+        # HeadInfer only has a FlashAttention-2 path (the runners enforce
+        # --attn_implementation flash_attention_2 for this method).
+        transformers.models.mistral.modeling_mistral.MistralFlashAttention2.forward = mistral_flash_attn2_forward_HeadInfer
+
     if method not in ["fullkv"]:
         transformers.models.mistral.modeling_mistral.MistralForCausalLM.prepare_inputs_for_generation = prepare_inputs_for_generation_mistral_new

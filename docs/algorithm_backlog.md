@@ -32,6 +32,7 @@ This backlog tracks representative KV cache algorithms to keep or implement in K
 | Quantization | KVQuant-style outlier path | `squeezeailab/kvquant`: 427 stars; NeurIPS 2024 | Partially implemented (`--quant_method kvquant`) |
 | Quantization | GEAR-style low-rank residual | arXiv 2024; near-lossless KV compression recipe | CPU-tested `compress_kv_gear` / `decompress_kv_gear` in nano-vllm and mini-sglang; CLI config metadata in KVCache-Factory (`--quant_method gear --rank --outlier_ratio`). Runtime cache wiring still pending. |
 | Sparse prefill | MInference | `microsoft/MInference`: 1220 stars; NeurIPS 2024 Spotlight | Partially integrated |
+| Lossless offloading | HeadInfer | `wdlctc/headinfer`; ICML 2025 (arXiv:2502.12574); head-wise CPU offloading, million-token contexts on one GPU | Implemented (`--method headinfer`, FlashAttention-2 path): head-wise cache slots with async prefetch/evict, LongBench runner + latency/memory benchmark wiring, chunked-prefill example |
 
 ## Priority Candidates
 
