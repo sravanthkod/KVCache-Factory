@@ -100,7 +100,7 @@ if __name__ == '__main__':
     # Single source of truth for row order: results_list rows are generated from
     # this list, so scores can never land under another method's label.
     methods = ["FullKV", "random", "SnapKV", "StreamingLLM", "H2O", "PyramidKV",
-               "L2Norm", "CAM", "ThinK", "AdaKV", "HeadKV"]
+               "L2Norm", "CAM", "ThinK", "AdaKV", "HeadKV", "HeadInfer"]
     results_list = [["dataset"]] + [[m] for m in methods]
 
     for dataset in dataset_list:

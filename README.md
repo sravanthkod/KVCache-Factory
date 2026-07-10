@@ -30,6 +30,7 @@ KVCache-Factory is a unified playground for KV cache compression, retrieval, mer
 | `AdaKV` | Adaptive compression | Head-adaptive KV cache budgets. |
 | `HeadKV` | Adaptive retrieval/compression | Head-aware retrieval/reasoning cache allocation. |
 | `ThinK` | Key-cache pruning | Query-driven key-channel pruning for Llama LongBench runs. |
+| `HeadInfer` | Lossless offloading | Head-wise KV cache offloading to CPU with async prefetch; keeps the full cache (no approximation). Requires `flash_attention_2`. |
 | `MInference` | Sparse prefill acceleration | Optional integration through the MInference dependency. |
 | `KIVI` / `KVQuant` / `GEAR` | Quantization | Enabled with `--quant_method kivi`, `--quant_method kvquant`, or `--quant_method gear`. GEAR additionally accepts `--rank` and `--outlier_ratio`. |
 
@@ -102,7 +103,7 @@ The quickstart uses a budget of `128`; the PyramidKV paper reports results at bu
 
 Common arguments:
 
-- `--method`: `FullKV`, `pyramidkv`, `snapkv`, `streamingllm`, `h2o`, `cam`, `l2norm`, `adakv`, `headkv`, `think`, or `minference`.
+- `--method`: `FullKV`, `pyramidkv`, `snapkv`, `streamingllm`, `h2o`, `cam`, `l2norm`, `adakv`, `headkv`, `think`, `headinfer`, or `minference`. `headinfer` is lossless (head-wise CPU offloading instead of compression), ignores `--max_capacity_prompts`, and requires `--attn_implementation flash_attention_2`.
 - `--model_path`: local or Hugging Face model path.
 - `--datasets`: comma-separated LongBench datasets to evaluate (e.g. `--datasets narrativeqa,qasper`); defaults to the full 16-dataset list.
 - `--attn_implementation`: `flash_attention_2`, `sdpa`, or `eager`. `--method think` requires `eager`.
@@ -169,6 +170,23 @@ python scripts/benchmark_latency_memory.py \
   --repeat 3
 ```
 
+## HeadInfer: Lossless Head-wise Offloading
+
+[HeadInfer](https://github.com/wdlctc/headinfer) (arXiv:2502.12574) takes the opposite trade to the compression methods: it keeps the **full** KV cache (identical outputs to `FullKV`) but stores it in one slot per (layer, kv head) pair and streams the slots between CPU and GPU, prefetching the next head's cache asynchronously while the current head computes. Attention is evaluated one KV head at a time, so only a constant number of head-caches occupy GPU memory regardless of context length.
+
+It runs anywhere `--method` is accepted on the LongBench runner, e.g.:
+
+```bash
+python3 run_longbench.py \
+  --method HeadInfer \
+  --model_path /path/to/Llama-3-8B-Instruct \
+  --attn_implementation flash_attention_2 \
+  --save_dir ./results_long_bench \
+  --use_cache True
+```
+
+The memory savings matter most far beyond LongBench context lengths; `examples/headinfer_example.py` demonstrates chunked prefill plus decode at hundreds of thousands of tokens on a single GPU. Expect a decode-latency cost from the per-head cache traffic — it is a memory-for-latency trade, best measured with `scripts/benchmark_latency_memory.py --method headinfer` on long prompts.
+
 ## Reproducibility Notes
 
 - Llama-3 LongBench runs now apply the official LongBench chat template (`<|begin_of_text|>...<|eot_id|>` user/assistant wrap on non-few-shot datasets) and stop on both Llama-3 terminators (`<|eot_id|>` and `<|end_of_text|>`). Earlier revisions used a single EOS id and no Llama-3 chat wrap, which depressed scores (issue #46); scores from earlier revisions are not directly comparable.
@@ -197,6 +215,7 @@ python scripts/benchmark_latency_memory.py \
 - [x] Add a tested NACL-style proxy/random eviction selector contract.
 - [x] Add a tested Scissorhands-style persistence selector contract.
 - [x] Add a tested MiniCache-style cross-layer merge/restore contract.
+- [x] Add HeadInfer lossless head-wise KV cache offloading.
 - [ ] Add more representative high-citation/high-star KV cache algorithms.
 - [ ] Support Mixtral.
 - [ ] Support batch inference.
@@ -225,6 +244,17 @@ If you find **PyramidKV** or this project useful, please cite:
 }
 ```
 
+If you use the HeadInfer offloading method, please also cite:
+
+```bibtex
+@article{luo2025headinfer,
+  title={HeadInfer: Memory-Efficient LLM Inference by Head-wise Offloading},
+  author={Luo, Cheng and Cai, Zefan and Sun, Hanshi and Xiao, Jinqi and Yuan, Bo and Xiao, Wen and Hu, Junjie and Zhao, Jiawei and Chen, Beidi and Anandkumar, Anima},
+  journal={arXiv preprint arXiv:2502.12574},
+  year={2025}
+}
+```
+
 ## Acknowledgement
 
-Thanks to [SnapKV](https://github.com/FasterDecoding/SnapKV), [H2O](https://github.com/FMInference/H2O), [StreamingLLM](https://github.com/mit-han-lab/streaming-llm), [Quest](https://github.com/mit-han-lab/quest), [NACL](https://aclanthology.org/2024.acl-long.428/), [Scissorhands](https://github.com/lzcemma/Scissorhands), [MiniCache](https://arxiv.org/abs/2405.14366), [AdaKV](https://github.com/FFY0/AdaKV), and related open-source KV cache projects for making this research area easier to build on.
+Thanks to [SnapKV](https://github.com/FasterDecoding/SnapKV), [H2O](https://github.com/FMInference/H2O), [StreamingLLM](https://github.com/mit-han-lab/streaming-llm), [Quest](https://github.com/mit-han-lab/quest), [NACL](https://aclanthology.org/2024.acl-long.428/), [Scissorhands](https://github.com/lzcemma/Scissorhands), [MiniCache](https://arxiv.org/abs/2405.14366), [AdaKV](https://github.com/FFY0/AdaKV), [HeadInfer](https://github.com/wdlctc/headinfer), and related open-source KV cache projects for making this research area easier to build on.
