@@ -955,6 +955,8 @@ class AdaKVCluster():
         self.floor_ratio = floor
         self.floor_capacity = int(self.base_capacity * self.floor_ratio)
         self.adaptive_capacity = self.base_capacity - self.floor_capacity
+        # if layer_idx == 0:  # Log only once per kv_cluster creation
+        print(f"[AdaKVCluster.__init__] max_capacity={max_capacity_prompt}, base={self.base_capacity}, floor={self.floor_capacity}, adaptive={self.adaptive_capacity}")
         self.num_hidden_layers = num_hidden_layers
 
         self.normalize = normalize
@@ -1032,6 +1034,8 @@ class AdaKVCluster():
             self.cu_head_offset = torch.arange(1, num_heads+1, dtype=torch.int32, device=_device)
 
         if self.base_capacity > attn_score.size(-1):
+            if self.layer_idx == 0:  # Log only for layer 0
+                print(f"[AdaKV.update_kv] NO COMPRESSION: base_capacity={self.base_capacity} > attn_score_len={attn_score.size(-1)}")
             init_metadata(num_heads, [q_len] * num_heads, q_len * num_heads, q_len)
             # not compress
             return key_states.reshape(-1, head_dim), value_states.reshape(-1, head_dim)
@@ -1046,6 +1050,8 @@ class AdaKVCluster():
         adaptive_attn_score = adaptive_attn_score.reshape(bsz,length*num_heads)
         sorted_indices = torch.topk(adaptive_attn_score,k=num_heads*self.base_capacity,dim=-1).indices
         sorted_indices = sorted_indices//length
+
+        print(f"length of sorted_indices: {len(sorted_indices[0]//num_heads)}")
         # floor capacity set
         head_adaptive_capacity = torch.zeros((bsz,num_heads),device=_device,dtype = sorted_indices.dtype)
         head_adaptive_capacity.scatter_add_(-1,sorted_indices,torch.ones_like(sorted_indices,dtype=head_adaptive_capacity.dtype),)
@@ -1177,6 +1183,8 @@ class HeadKVCluster():
             self.cu_head_offset = torch.arange(1, num_heads+1, dtype=torch.int32, device=_device)
 
         if self.base_capacity > attn_score.size(-1):
+            if self.layer_idx == 0:  # Log only for layer 0
+                print(f"[AdaKV.update_kv] NO COMPRESSION: base_capacity={self.base_capacity} > attn_score_len={attn_score.size(-1)}")
             init_metadata(num_heads, [q_len] * num_heads, q_len * num_heads, q_len)
             # not compress
             return key_states.reshape(-1, head_dim), value_states.reshape(-1, head_dim)
@@ -1250,15 +1258,18 @@ def init_pyramidkv(self, num_hidden_layers):
         if not hasattr(self.config, 'gqa_score_agg'):
             self.config.gqa_score_agg = 'mean'
 
-
+    # IMPORTANT: All layers share the SAME config object, so
+    # self.config.max_capacity_prompt (etc.) holds only the LAST layer's
+    # value.  set_model_budgets() stores per-layer values as instance
+    # attributes on the attention module; prefer those when present.
     self.kv_cluster = PyramidKVCluster(
         num_hidden_layers = num_hidden_layers,
         layer_idx = self.layer_idx,
-        window_size = self.config.window_size,
-        max_capacity_prompt = self.config.max_capacity_prompt,
-        kernel_size = self.config.kernel_size,
-        pooling = self.config.pooling,
-        merge = self.config.merge,
+        window_size = getattr(self, 'window_size', self.config.window_size),
+        max_capacity_prompt = getattr(self, 'max_capacity_prompt', self.config.max_capacity_prompt),
+        kernel_size = getattr(self, 'kernel_size', self.config.kernel_size),
+        pooling = getattr(self, 'pooling', self.config.pooling),
+        merge = getattr(self, 'merge', self.config.merge),
         gqa_score_agg = getattr(self.config, 'gqa_score_agg', 'mean'),
         )
  
@@ -1277,13 +1288,18 @@ def init_snapkv(self):
         if not hasattr(self.config, 'gqa_score_agg'):
             self.config.gqa_score_agg = 'mean'
 
-
+    # IMPORTANT: All layers share the SAME config object, so
+    # self.config.max_capacity_prompt (etc.) holds only the LAST layer's
+    # value.  set_model_budgets() stores per-layer values as instance
+    # attributes on the attention module; prefer those when present.
+    # print("testing here 1: ",self.config.max_capacity_prompt)
+    # print("testing here 2: ",getattr(self, 'max_capacity_prompt', self.config.max_capacity_prompt))
     self.kv_cluster = SnapKVCluster(
-        window_size = self.config.window_size,
-        max_capacity_prompt = self.config.max_capacity_prompt,
-        kernel_size = self.config.kernel_size,
-        pooling = self.config.pooling,
-        merge = self.config.merge,
+        window_size = getattr(self, 'window_size', self.config.window_size),
+        max_capacity_prompt = getattr(self, 'max_capacity_prompt', self.config.max_capacity_prompt),
+        kernel_size = getattr(self, 'kernel_size', self.config.kernel_size),
+        pooling = getattr(self, 'pooling', self.config.pooling),
+        merge = getattr(self, 'merge', self.config.merge),
         gqa_score_agg = getattr(self.config, 'gqa_score_agg', 'mean'),
         )
 
@@ -1303,16 +1319,19 @@ def init_think(self):
             self.config.recent_size = 32
         if not hasattr(self.config, 'ratio'):
             self.config.ratio = 0.4
-    
-    
+
+    # IMPORTANT: All layers share the SAME config object, so
+    # self.config.max_capacity_prompt (etc.) holds only the LAST layer's
+    # value.  set_model_budgets() stores per-layer values as instance
+    # attributes on the attention module; prefer those when present.
     self.kv_cluster = SnapKVCluster(
-        window_size = self.config.window_size,
-        max_capacity_prompt = self.config.max_capacity_prompt,
-        kernel_size = self.config.kernel_size,
-        pooling = self.config.pooling,
-        merge = self.config.merge,
-        recent_size = self.config.recent_size,
-        ratio = self.config.ratio,
+        window_size = getattr(self, 'window_size', self.config.window_size),
+        max_capacity_prompt = getattr(self, 'max_capacity_prompt', self.config.max_capacity_prompt),
+        kernel_size = getattr(self, 'kernel_size', self.config.kernel_size),
+        pooling = getattr(self, 'pooling', self.config.pooling),
+        merge = getattr(self, 'merge', self.config.merge),
+        recent_size = getattr(self, 'recent_size', self.config.recent_size),
+        ratio = getattr(self, 'ratio', self.config.ratio),
         gqa_score_agg = getattr(self.config, 'gqa_score_agg', 'mean')
         )
 
@@ -1328,8 +1347,12 @@ def init_l2norm(self):
         if not hasattr(self.config, 'gqa_score_agg'):
             self.config.gqa_score_agg = 'mean'
 
+    # IMPORTANT: All layers share the SAME config object, so
+    # self.config.max_capacity_prompt (etc.) holds only the LAST layer's
+    # value.  set_model_budgets() stores per-layer values as instance
+    # attributes on the attention module; prefer those when present.
     self.kv_cluster = L2NormCluster(
-        max_capacity_prompt = self.config.max_capacity_prompt,
+        max_capacity_prompt = getattr(self, 'max_capacity_prompt', self.config.max_capacity_prompt),
         layer_idx = self.layer_idx,
         skip_layers = self.config.skip_layers,
         gqa_score_agg = getattr(self.config, 'gqa_score_agg', 'mean'),
@@ -1348,13 +1371,16 @@ def init_CAM(self):
         if not hasattr(self.config, 'gqa_score_agg'):
             self.config.gqa_score_agg = 'mean'
 
-
+    # IMPORTANT: All layers share the SAME config object, so
+    # self.config.max_capacity_prompt (etc.) holds only the LAST layer's
+    # value.  set_model_budgets() stores per-layer values as instance
+    # attributes on the attention module; prefer those when present.
     self.kv_cluster = CAMKVCluster(
-        window_size = self.config.window_size,
-        max_capacity_prompt = self.config.max_capacity_prompt,
-        kernel_size = self.config.kernel_size,
-        pooling = self.config.pooling,
-        merge = self.config.merge,
+        window_size = getattr(self, 'window_size', self.config.window_size),
+        max_capacity_prompt = getattr(self, 'max_capacity_prompt', self.config.max_capacity_prompt),
+        kernel_size = getattr(self, 'kernel_size', self.config.kernel_size),
+        pooling = getattr(self, 'pooling', self.config.pooling),
+        merge = getattr(self, 'merge', self.config.merge),
         gqa_score_agg = getattr(self.config, 'gqa_score_agg', 'mean'),
         )
 
@@ -1373,12 +1399,16 @@ def init_H2O(self):
         if not hasattr(self.config, 'gqa_score_agg'):
             self.config.gqa_score_agg = 'mean'
 
+    # IMPORTANT: All layers share the SAME config object, so
+    # self.config.max_capacity_prompt (etc.) holds only the LAST layer's
+    # value.  set_model_budgets() stores per-layer values as instance
+    # attributes on the attention module; prefer those when present.
     self.kv_cluster = H2OKVCluster(
-        window_size = self.config.window_size,
-        max_capacity_prompt = self.config.max_capacity_prompt,
-        kernel_size = self.config.kernel_size,
-        pooling = self.config.pooling,
-        merge = self.config.merge,
+        window_size = getattr(self, 'window_size', self.config.window_size),
+        max_capacity_prompt = getattr(self, 'max_capacity_prompt', self.config.max_capacity_prompt),
+        kernel_size = getattr(self, 'kernel_size', self.config.kernel_size),
+        pooling = getattr(self, 'pooling', self.config.pooling),
+        merge = getattr(self, 'merge', self.config.merge),
         gqa_score_agg = getattr(self.config, 'gqa_score_agg', 'mean'),
         )
 
@@ -1397,13 +1427,16 @@ def init_StreamingLLM(self):
         if not hasattr(self.config, 'gqa_score_agg'):
             self.config.gqa_score_agg = 'mean'
 
-
+    # IMPORTANT: All layers share the SAME config object, so
+    # self.config.max_capacity_prompt (etc.) holds only the LAST layer's
+    # value.  set_model_budgets() stores per-layer values as instance
+    # attributes on the attention module; prefer those when present.
     self.kv_cluster = StreamingLLMKVCluster(
-        window_size = self.config.window_size,
-        max_capacity_prompt = self.config.max_capacity_prompt,
-        kernel_size = self.config.kernel_size,
-        pooling = self.config.pooling,
-        merge = self.config.merge,
+        window_size = getattr(self, 'window_size', self.config.window_size),
+        max_capacity_prompt = getattr(self, 'max_capacity_prompt', self.config.max_capacity_prompt),
+        kernel_size = getattr(self, 'kernel_size', self.config.kernel_size),
+        pooling = getattr(self, 'pooling', self.config.pooling),
+        merge = getattr(self, 'merge', self.config.merge),
         gqa_score_agg = getattr(self.config, 'gqa_score_agg', 'mean'),
         )
 
@@ -1425,15 +1458,20 @@ def init_adakv(self):
             self.config.gqa_score_agg = 'mean'
     # max_capacity_prompt --> base_capacity
     # init only once
+    # IMPORTANT: All layers share the SAME config object, so
+    # self.config.max_capacity_prompt (etc.) holds only the LAST layer's
+    # value.  set_model_budgets() stores per-layer values as instance
+    # attributes on the attention module; prefer those when present.
     if not hasattr(self, "kv_cluster"):
         self.kv_cluster = AdaKVCluster( 
             num_hidden_layers = self.config.num_hidden_layers,
             layer_idx = self.layer_idx,
-            window_size = self.config.window_size, 
-            max_capacity_prompt = self.config.max_capacity_prompt, 
-            kernel_size = self.config.kernel_size,
-            pooling = self.config.pooling,
-            floor = self.config.floor_ratio,
+            window_size = getattr(self, 'window_size', self.config.window_size), 
+            max_capacity_prompt = getattr(self, 'max_capacity_prompt', self.config.max_capacity_prompt), 
+            kernel_size = getattr(self, 'kernel_size', self.config.kernel_size),
+            pooling = getattr(self, 'pooling', self.config.pooling),
+            # floor = self.config.floor_ratio,
+            floor = getattr(self,'floor_ratio',self.config.floor_ratio),
             normalize = self.config.normalize,
             gqa_score_agg = getattr(self.config, 'gqa_score_agg', 'mean'),
             )
@@ -1455,14 +1493,18 @@ def init_headkv(self):
             self.config.gqa_score_agg = 'mean'
     # max_capacity_prompt --> base_capacity
     # init only once
+    # IMPORTANT: All layers share the SAME config object, so
+    # self.config.max_capacity_prompt (etc.) holds only the LAST layer's
+    # value.  set_model_budgets() stores per-layer values as instance
+    # attributes on the attention module; prefer those when present.
     if not hasattr(self, "kv_cluster"):
         self.kv_cluster = HeadKVCluster( 
             num_hidden_layers = self.config.num_hidden_layers,
             layer_idx = self.layer_idx,
-            window_size = self.config.window_size, 
-            max_capacity_prompt = self.config.max_capacity_prompt, 
-            kernel_size = self.config.kernel_size,
-            pooling = self.config.pooling,
+            window_size = getattr(self, 'window_size', self.config.window_size), 
+            max_capacity_prompt = getattr(self, 'max_capacity_prompt', self.config.max_capacity_prompt), 
+            kernel_size = getattr(self, 'kernel_size', self.config.kernel_size),
+            pooling = getattr(self, 'pooling', self.config.pooling),
             head_capacity=self.config.head_capacity,
             gqa_score_agg = getattr(self.config, 'gqa_score_agg', 'mean'),
             )

@@ -118,9 +118,32 @@ def main(args):
     model_name = model_path.split("/")[-1]
 
     os.makedirs(os.path.join(args.save_dir, f"{model_name}_{args.max_capacity_prompts}", str(args.context_length), args.dataset), exist_ok=True)
-    fout = open(os.path.join(args.save_dir, f"{model_name}_{args.max_capacity_prompts}", str(args.context_length), args.dataset, f"{args.method}.json"), "w")
+
+    file_path = os.path.join(args.save_dir, f"{model_name}_{args.max_capacity_prompts}", args.dataset, f"{args.method}.json")
+
+
+    start = 0
+
+    if os.path.exists(file_path):
+        with open(file_path, 'r', encoding='utf-8') as file:
+            lines = file.readlines()
+        if len(prompts) == len(lines):
+            print(f"Skipping {args.dataset}, already completely inferred.")
+            return
+        else:
+            # data_all = data_all[len(lines):]
+            if (len(lines)):
+                print(f"{args.dataset} is half cooked {len(lines)}/{len(prompts)}")
+            start = len(lines)
+
+
+    fout = open(os.path.join(args.save_dir, f"{model_name}_{args.max_capacity_prompts}", str(args.context_length), args.dataset, f"{args.method}.json"), "a")
+
+
+    # fout = open(os.path.join(args.save_dir, f"{model_name}_{args.max_capacity_prompts}", str(args.context_length), args.dataset, f"{args.method}.json"), "w")
     
-    for i in tqdm(range(0, len(prompt_list), args.eval_batch_size)):
+    # for i in tqdm(range(0, len(prompt_list), args.eval_batch_size)):
+    for i in tqdm(range(start, len(prompt_list), args.eval_batch_size)):
         
         batch_prompts = prompt_list[i:i+args.eval_batch_size]
         batch_inputs = input_list[i:i+args.eval_batch_size]

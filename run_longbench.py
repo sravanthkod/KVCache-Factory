@@ -14,9 +14,16 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from pyramidkv.quantization import build_quantized_cache_config, patch_quantized_cache
 from pyramidkv.eval_utils import str2bool, build_stop_token_ids
 
-datasets = ["narrativeqa", "qasper", "multifieldqa_en", "hotpotqa", "2wikimqa", "musique", \
-            "gov_report", "qmsum", "multi_news", "trec", "triviaqa", "samsum", \
-            "passage_count", "passage_retrieval_en", "lcc", "repobench-p"]
+# datasets = ["narrativeqa", "qasper", "multifieldqa_en", "hotpotqa", "2wikimqa", "musique", \
+#             "gov_report", "qmsum", "multi_news", "trec", "triviaqa", "samsum", \
+#             "passage_count", "passage_retrieval_en", "lcc", "repobench-p"]
+
+# datasets = ["narrativeqa", "qasper", "multifieldqa_en", "hotpotqa", "2wikimqa", "musique", \
+#             "gov_report", "qmsum", "multi_news", \
+#              "lcc", "repobench-p"]
+
+# datasets = [ "hotpotqa", "2wikimqa", "musique"]
+datasets = [ "hotpotqa"]
 
 # LongBench datasets that must NOT be wrapped with a chat template
 # (few-shot / code completion tasks), matching official LongBench pred.py.
@@ -210,9 +217,31 @@ def main(args):
 
     os.makedirs(os.path.join(args.save_dir, f"{model_name}_{args.max_capacity_prompts}", args.dataset), exist_ok=True)
 
-    fout = open(os.path.join(args.save_dir, f"{model_name}_{args.max_capacity_prompts}", args.dataset, f"{args.method}.json"), "w")
+    file_path = os.path.join(args.save_dir, f"{model_name}_{args.max_capacity_prompts}", args.dataset, f"{args.method}.json")
+
+
+    start = 0
+
+    if os.path.exists(file_path):
+        with open(file_path, 'r', encoding='utf-8') as file:
+            lines = file.readlines()
+        if len(prompts) == len(lines):
+            print(f"Skipping {args.dataset}, already completely inferred.")
+            return
+        else:
+            # data_all = data_all[len(lines):]
+            if (len(lines)):
+                print(f"{args.dataset} is half cooked {len(lines)}/{len(prompts)}")
+            start = len(lines)
+
+    # fout = open(os.path.join(args.save_dir, f"{model_name}_{args.max_capacity_prompts}", args.dataset, f"{args.method}.json"), "w")
+
+    fout = open(os.path.join(args.save_dir, f"{model_name}_{args.max_capacity_prompts}", args.dataset, f"{args.method}.json"), "a")
+
+    
      
-    for i in tqdm(range(0, len(prompts), args.eval_batch_size)):
+    # for i in tqdm(range(0, len(prompts), args.eval_batch_size)):
+    for i in tqdm(range(start, len(prompts), args.eval_batch_size)):
         
         batch_prompts = prompts[i:i+args.eval_batch_size]
         batch_inputs = inputs[i:i+args.eval_batch_size]
@@ -306,6 +335,7 @@ def main(args):
                 model.model.layers[i].self_attn.config.pooling = pooling
                 model.model.layers[i].self_attn.config.merge = args.merge
                 model.model.layers[i].self_attn.config.floor = args.floor
+                # model.model.layers[i].self_attn.config.floor_ratio = args.floor  # AdaKV reads config.floor_ratio, not config.floor
                 model.model.layers[i].self_attn.config.ratio = ratio[i]
                 model.model.layers[i].self_attn.config.recent_size = recent_size[i]
                 model.model.layers[i].self_attn.config.kv_cache_granularity = args.kv_cache_granularity

@@ -170,3 +170,9 @@ results*/
 attention*/
 others/
 obs/
+
+# Large benchmark result dumps / model dirs — not code, don't push
+Meta-Llama-3-8B-Instruct/
+llama-2-7b-chat/
+mistral_7b_v02_benchmark/
+mistral_7b_v02_nas_results/

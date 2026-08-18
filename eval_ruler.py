@@ -33,7 +33,7 @@ if __name__ == '__main__':
         
         results_list[0].append(dataset)
         
-        for idx, method in enumerate(["FullKV", "random", "SnapKV", "StreamingLLM", "H2O", "PyramidKV", "L2Norm"]):
+        for idx, method in enumerate(["FullKV", "random", "snapkv", "StreamingLLM", "H2O", "PyramidKV", "L2Norm"]):
             try:
                 args.method = method
                 args.dataset = dataset
