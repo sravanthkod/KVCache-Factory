@@ -1,0 +1,336 @@
+\documentclass[11pt]{article}
+
+% Change "review" to "final" to generate the final (sometimes called camera-ready) version.
+% Change to "preprint" to generate a non-anonymous version with page numbers.
+\usepackage[review]{acl}
+
+% Standard package includes
+\usepackage{times}
+\usepackage{latexsym}
+
+% For proper rendering and hyphenation of words containing Latin characters (including in bib files)
+\usepackage[T1]{fontenc}
+% For Vietnamese characters
+% \usepackage[T5]{fontenc}
+% See https://www.latex-project.org/help/documentation/encguide.pdf for other character sets
+
+% This assumes your files are encoded as UTF8
+\usepackage[utf8]{inputenc}
+
+% This is not strictly necessary, and may be commented out,
+% but it will improve the layout of the manuscript,
+% and will typically save some space.
+\usepackage{microtype}
+
+% This is also not strictly necessary, and may be commented out.
+% However, it will improve the aesthetics of text in
+% the typewriter font.
+\usepackage{inconsolata}
+
+%Including images in your LaTeX document requires adding
+%additional package(s)
+\usepackage{graphicx}
+
+% TikZ for diagrams
+\usepackage{tikz}
+\usetikzlibrary{positioning, shapes, arrows}
+
+% Better table formatting
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage{colortbl}
+\usepackage{multirow}
+\usepackage{bigdelim}
+% main text: allow two full-width floats per page and fuller float areas (tables and figures are dense)
+\setcounter{dbltopnumber}{2}
+\renewcommand{\dbltopfraction}{0.85}
+\renewcommand{\topfraction}{0.85}
+\renewcommand{\textfraction}{0.1}
+\renewcommand{\floatpagefraction}{0.75}
+\renewcommand{\dblfloatpagefraction}{0.75}
+\usepackage{placeins}
+
+% If the title and author information does not fit in the area allocated, uncomment the following
+%
+%\setlength\titlebox{<dim>}
+%
+% and set <dim> to something 5cm or larger.
+
+\title{MOSAIC: Multi-Objective Search for Allocating Inference Cache Across LLM Decoder Layers}
+
+\author{Anonymous}
+
+%\author{
+%  \textbf{First Author\textsuperscript{1}},
+%  \textbf{Second Author\textsuperscript{1,2}},
+%  \textbf{Third T. Author\textsuperscript{1}},
+%  \textbf{Fourth Author\textsuperscript{1}},
+%\\
+%  \textbf{Fifth Author\textsuperscript{1,2}},
+%  \textbf{Sixth Author\textsuperscript{1}},
+%  \textbf{Seventh Author\textsuperscript{1}},
+%  \textbf{Eighth Author \textsuperscript{1,2,3,4}},
+%\\
+%  \textbf{Ninth Author\textsuperscript{1}},
+%  \textbf{Tenth Author\textsuperscript{1}},
+%  \textbf{Eleventh E. Author\textsuperscript{1,2,3,4,5}},
+%  \textbf{Twelfth Author\textsuperscript{1}},
+%\\
+%  \textbf{Thirteenth Author\textsuperscript{3}},
+%  \textbf{Fourteenth F. Author\textsuperscript{2,4}},
+%  \textbf{Fifteenth Author\textsuperscript{1}},
+%  \textbf{Sixteenth Author\textsuperscript{1}},
+%\\
+%  \textbf{Seventeenth S. Author\textsuperscript{4,5}},
+%  \textbf{Eighteenth Author\textsuperscript{3,4}},
+%  \textbf{Nineteenth N. Author\textsuperscript{2,5}},
+%  \textbf{Twentieth Author\textsuperscript{1}}
+%\\
+%\\
+%  \textsuperscript{1}Affiliation 1,
+%  \textsuperscript{2}Affiliation 2,
+%  \textsuperscript{3}Affiliation 3,
+%  \textsuperscript{4}Affiliation 4,
+%  \textsuperscript{5}Affiliation 5
+%\\
+%  \small{
+%    \textbf{Correspondence:} \href{mailto:email@domain}{email@domain}
+%  }
+%}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+Key-Value (KV) cache consumption is a critical bottleneck for efficient LLM inference, especially on long-context workloads. Token eviction methods such as SnapKV, H2O, AdaKV and L2Norm reduce this footprint, but they give every transformer layer the same cache budget, although layers differ in which tokens they need. We propose MOSAIC, a multi-objective neural architecture search approach that discovers per-layer KV-cache budget allocations tailored to a given eviction method. MOSAIC treats average cache budget and task score as competing objectives in a four-stage pipeline: a single unconstrained search maps the trade-off between budget and score, its best layer-wise allocation is transferred to any target budget, and a budget-constrained search can refine it further. On Llama-3-8B-Instruct, MOSAIC improves over uniform allocation for all four eviction methods, with gains of up to +48 points on RULER and up to +11.9 points on LongBench (LCC), and it improves every evaluated setting on Mistral-7B-Instruct-v0.2 as well. One search serves many budgets: the winner transfers to other budgets without further search, including budgets far below the one at which it was found. Configurations are selected and evaluated on the full benchmark data. The learned allocations consistently favour a small set of middle layers.
+\end{abstract}
+
+\section{Introduction}
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/figure1_pipeline.pdf}
+  \caption{\textbf{The MOSAIC pipeline.} Stages 1--3 run once per (task, eviction policy): an unconstrained search on a calibration subset yields a Pareto front of per-layer allocations, full-data re-evaluation selects a winner, and the winner is rescaled to every target budget without further search. Stage 4 optionally refines each budget with constrained BO seeded by the rescaled winner. Bar profiles are schematic.}
+  \label{fig:method}
+\end{figure*}
+
+Long-context inference with large language models (LLMs) is limited by the memory of the key-value (KV) cache, which grows linearly with sequence length and batch size: a 30B-parameter model with batch size 128 and sequence length 1024 already needs 180\,GB of KV cache \citep{zhang2023h2o}. Token eviction methods like H2O \citep{zhang2023h2o}, SnapKV \citep{li2024snapkv} and L2Norm \citep{devoto2024l2norm} address this by selectively dropping cache entries based on token importance, and AdaKV \citep{feng2025adakv} builds on them by distributing a layer's budget adaptively across its attention heads. However, these methods apply the same memory budget to every transformer layer. Layer-wise allocation schemes exist, but they either fix the shape of the allocation in advance \citep{cai2025pyramidkv}, derive it from attention statistics \citep{qin2025cake}, or optimize layer budgets one group at a time at one budget and rescale the result to others \citep{yu2025evolkv}. This overlooks a critical insight: different layers prioritize tokens differently. In our searches, a few middle layers consistently receive more than their uniform share, so a uniform allocation spends cache on layers that need little while starving the ones that need more.
+
+This paper introduces MOSAIC, a method that automatically optimizes per-layer KV-cache budgets under a target memory constraint using multi-objective neural architecture search. Rather than hand-tuning layer-specific heuristics or optimizing layers group by group, MOSAIC searches the per-layer budget space jointly, one budget per decoder layer (32 for Llama-3-8B, up to $10^{27}$ configurations on its search grid), using Bayesian optimization guided by a surrogate MLP (Figure~\ref{fig:method}). MOSAIC is to KV-cache allocation what static quantization is to model quantization: just as static quantization fixes scales and zero points on a calibration set, MOSAIC fixes each layer's budget offline on calibration data, so inference adds no per-prompt allocation step. Methods such as CAKE and Ada-KV instead adapt the budget to each prompt at inference time, as dynamic quantization computes its ranges at run time. We evaluate MOSAIC across four eviction methods (SnapKV, H2O, AdaKV, L2Norm) on Llama-3-8B-Instruct and Mistral-7B-Instruct-v0.2 (all four on RULER, L2Norm on LongBench), on two benchmarks: LongBench (4 task categories) and RULER (11 in-context retrieval subtasks). On RULER, per-layer allocation yields large gains over uniform (+2.3 to +47.9 points), concentrated on the hardest needle-retrieval subtasks. On LongBench, MOSAIC improves every Code setting, with dataset-level gains of up to +11.9 points on LCC (L2Norm), +3.5 on LCC for SnapKV, and +3.0 on MultiFieldQA-en (H2O) and Qasper (AdaKV) (Section~\ref{sec:which-stage}).
+
+\textbf{MOSAIC versus EvolKV.}\label{sec:intro-evolkv} The closest prior work, EvolKV \citep{yu2025evolkv}, searches per-layer budgets with CMA-ES group by group, eight layers at a time, at a target budget fixed in advance. MOSAIC instead searches all layer budgets jointly, a space about $10^{53}$ times larger at the same budget, across a budget--score Pareto front, selects a reusable anchor, and optionally refines it at each deployment budget; on Code it beats EvolKV at every budget, both searching once ($+1.3$ to $+2.1$) and per budget at EvolKV's compute ($+0.8$ to $+1.7$, Appendix~\ref{app:cost}), and even searched once, MOSAIC's winner outperforms EvolKV's per-budget searches at every budget where both ran (Section~\ref{sec:evolkv}).
+
+Our contributions are: (i) MOSAIC, a four-stage workflow (joint per-layer search, budget--score exploration, winner rescaling, optional per-budget refinement) whose single search yields a winner that transfers across budgets without further search; (ii) an evaluation across four eviction methods, two models and two benchmarks, where MOSAIC improves over uniform allocation for every method, with gains of up to +48 points on RULER; and (iii) an analysis of the learned allocations, which favour a small set of middle layers.
+
+\section{Related Work}
+
+\textbf{Token eviction.} Eviction methods reduce KV-cache memory by retaining only the tokens judged important. H2O \citep{zhang2023h2o} keeps ``heavy hitters'', tokens with high accumulated attention, together with a window of recent tokens. SnapKV \citep{li2024snapkv} selects, for each attention head, the prompt positions that receive the most attention from an observation window at the end of the prompt. L2Norm \citep{devoto2024l2norm} keeps the tokens whose keys have the lowest $L_2$ norm, which correlates with high attention, without computing attention scores. KeyDiff \citep{park2025keydiff} also avoids attention scores, keeping keys that are geometrically distinctive from the others, which makes it compatible with FlashAttention. QUOKA \citep{jones2026quoka} selects key-value pairs for prefill from the keys aligned with a subset of representative queries. These methods decide which tokens to keep; how much cache each layer should receive is a separate question, which MOSAIC addresses.
+
+\textbf{Static and dynamic budget allocation.} A second line of work allocates a fixed total budget non-uniformly instead of changing how tokens are scored. Dynamic methods recompute the allocation for every prompt, as dynamic quantization computes its ranges at run time: Ada-KV \citep{feng2025adakv} allocates budget adaptively across the heads of a layer, and CAKE \citep{qin2025cake} derives per-layer budgets from layer preferences measured on each prompt's attention patterns. Static methods fix the allocation before inference: PyramidKV \citep{cai2025pyramidkv} assigns layer budgets following a hand-designed pyramidal shape, larger in lower layers and smaller in higher ones. MOSAIC is static in the sense of static quantization, calibrating the allocation offline for each model and eviction method. Closest to our work, EvolKV \citep{yu2025evolkv} treats per-layer budgets as optimization variables, partitions layers into groups, and runs evolutionary search on one group at a time against downstream task score at one target budget; its main results then extend that allocation to larger budgets by proportional rescaling, without further optimization. MOSAIC shares this rescaling step but finds the allocation to rescale differently, searching all layers jointly across budgets rather than at one target budget (Section~\ref{sec:evolkv}, Appendix~\ref{app:evolkv-glance}).
+
+\textbf{Neural architecture search.} Multi-objective NAS trades off competing goals such as accuracy and latency along a Pareto front \citep{elsken2018neural}. MOSAIC adopts this multi-objective formulation for KV-cache allocation but uses its own search procedure (Section~\ref{sec:method}): a classifier-guided optimizer built for this problem, which needs only a few hundred evaluations per search.
+
+\section{Method}
+\label{sec:method}
+
+\subsection{Problem Formulation}
+\label{sec:formulation}
+
+Given an eviction method $M$, a model with $L$ decoder layers ($L = 32$ for Llama-3-8B) and a target budget $B$ (average tokens per layer), we seek a vector $\mathbf{b} = (b_1, \ldots, b_L) \in [b_{\min}, b_{\max}]^L$ that maximizes task performance while maintaining $\frac{1}{L}\sum_{i=1}^{L} b_i = B$. We use a per-layer floor $b_{\min} = 64$ (Appendix~\ref{app:floor}) and cap $b_{\max} = 4096$. Each configuration is encoded as $\mathbf{x} \in [0,1]^L$. The unconstrained search is multi-objective: it minimizes the mean per-layer budget $f_1(\mathbf{b}) = \frac{1}{L}\sum_i b_i$ and maximizes the task score $f_2(\mathbf{b})$ on a calibration subsample. The budget-constrained variant (Stage 4) instead fixes $f_1 = B$ by rescaling the per-layer weights so that their mean equals $B$ exactly.
+
+\textbf{Search space.} Stage 1's grid of $|G|$ levels per layer holds $|G|^L$ configurations ($5^{32} \approx 2.3\times10^{22}$ or $7^{32} \approx 1.1\times10^{27}$ for $L = 32$) spanning every average budget from 64 to the grid cap, and at a fixed budget $B$ the integer allocations in $[64, 4096]^L$ with mean $B$ number about $10^{69}$ at B128 and $10^{105}$ at B1024. EvolKV's group-by-group search covers about $10^{16}$ at B128, ${\sim}10^{53}$ times fewer (Appendix~\ref{app:repro}). A search evaluates at most 200 of them in Stage 1 and 150 in Stage 4 (Appendix~\ref{app:repro}), so every layer budget must be chosen jointly from a vanishing fraction of the space.
+
+\textbf{Search step.} All stages share one classifier-guided Bayesian optimization procedure. After each evaluation, the archive is non-dominated sorted, an MLP classifier (two hidden layers of 32 units) is trained to separate the rank-1 configurations from the rest, and differential evolution maximizes the classifier's probability of rank 1 over $[0,1]^L$ to propose the next configuration, one evaluation per iteration. We call these BO proposals; stopping rules are in Appendix~\ref{app:repro}.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/figure_pareto.pdf}
+  \caption{\textbf{Budget--score trade-off found by the unconstrained search (full data).} Rows: eviction method; columns: task. Dashed: uniform allocation. Dots: configurations on the Stage 1 Pareto front, re-evaluated on full data in Stage 2. Ring: the winner carried to Stages 3 and 4. AdaKV Summarization is still running.}
+  \label{fig:pareto}
+\end{figure*}
+
+\subsection{Search Procedure (MOSAIC — Four-Stage Pipeline)}
+
+\textbf{Why four stages.} An unconstrained search returns configurations at arbitrary average budgets, so a configuration it finds cannot be compared directly with uniform allocation at a fixed budget $B$. MOSAIC therefore selects one winner shape from the search (Stages 1--2) and rescales it to each target budget (Stage 3). This already gives a configuration at every budget without further search, and the pipeline can stop here. Stage 4 is optional: it searches at a fixed budget for a configuration better than the rescaled winner (Figure~\ref{fig:method}).
+
+\textbf{Tasks.}\label{sec:method-tasks} MOSAIC searches separately for each task and eviction method. LongBench has four English task categories, each a group of datasets: Single-Doc QA (NarrativeQA, Qasper, MultiFieldQA-en), Multi-Doc QA (HotpotQA, 2WikiMultihopQA, MuSiQue), Summarization (GovReport, QMSum, MultiNews) and Code (LCC, RepoBench-P); a category's score is the mean over its datasets. We search each LongBench category separately because their tasks and metrics differ (F1 for QA, ROUGE-L for summarization, edit similarity for code). RULER's 11 retrieval subtasks at 4K context share one metric (string-match accuracy), so a single search covers all of them. Stages 1--2 run once per (task, method) and Stages 3--4 once per target budget; we call each (task, method, budget) a \emph{cell}.
+
+\textbf{Stage 1 (Unconstrained Multi-Budget NAS):} Search a discrete per-layer grid of powers of two with no budget constraint, from 64 up to 4096 on RULER and up to 1024 or 4096 on LongBench (the grid of each run is in Appendix~\ref{app:repro}). The initial design has 64 points: the uniform allocation at every grid level plus Latin Hypercube samples. Guided iterations then trace out the budget--score Pareto front. Because this search must rank allocations across the whole budget range, and runs only once per (task, method), it uses a larger calibration subsample on LongBench (30\%; case study in Appendix~\ref{app:calib}); on RULER it uses 10\%, which already ranks faithfully (Appendix~\ref{app:calib}).
+
+\textbf{Stage 2 (Winner Selection via Full-Data Eval):} Re-evaluate every configuration on the Stage 1 Pareto front (typically 10--20 configurations) on the full test data, and keep the \textbf{winner shape}: the shaped configuration with the highest full-data score. This winner becomes a universal anchor for all subsequent budget-constrained searches.
+
+
+
+\textbf{Stage 3 (Winner Rescaling to Fixed Budgets):} Take the winner shape discovered in Stage 2 and rescale it to match fixed target budgets: B128--B1024 on LongBench and B64--B2048 on RULER (B64 only where the floor of 16 allows reallocation). Evaluate each rescaled configuration on full test data. These Stage 3 results (\textbf{Winner-Rescaled}) require no further search, and they already beat uniform in 74 of 84 (category, method, budget) cells, including shapes found at an average budget of $\sim$2400 transferred down to 128. Table~\ref{tab:transfer} summarizes the transfer; all 84 cells are in Appendix~\ref{app:transfer}.
+
+\begin{table}[htbp]
+  \centering
+  \scriptsize
+  \setlength{\tabcolsep}{2.6pt}
+  \renewcommand{\arraystretch}{0.92}
+  \input{tables/table_stages.tex}
+  \caption{\textbf{One search, many budgets.} Stage 3: the Stage 2 winner, found once at its natural average budget and rescaled to every target budget with no further search. Stage 4: NAS-refined, the best configuration of the budget-constrained search, available only at budgets where it ran. MOSAIC: its final configuration, the better of Winner and NAS-refined (chosen per budget), at the same budgets as Stage 4. Wins: budgets where the configuration beats uniform on full data; $\Delta$: mean gain over uniform. $^\ddagger$Mistral-7B-Instruct-v0.2; all other rows Llama-3-8B-Instruct.}
+  \label{tab:transfer}
+\end{table}
+
+\textbf{Stage 4 (Budget-Constrained Adaptive Search):} For each target budget $B$, Stage 4 solves $\max_{\mathbf{x} \in [0,1]^L} f_2(D_B(\mathbf{x}))$, where the decoder $D_B$ maps $\mathbf{x}$ to budgets with $\frac{1}{L}\sum_i b_i = B$ and $b_{\min} \le b_i \le b_{\max}$: it sets $b_i \propto x_i$ scaled to the total $LB$, clamps layers that cross a bound and redistributes the remainder in proportion to $x_i$, then rounds so that the total is exactly $LB$ (Appendix~\ref{app:repro}). Every candidate thus meets the budget by construction, and with $f_1$ fixed at $B$ the search maximizes $f_2$ alone. Seed this search with: (i) the Stage 2 winner rescaled to budget $B$ (from Stage 3), (ii) six heuristic shapes (uniform, ascending and descending ramps, middle- and edge-heavy triangles, and an alternating low/high pattern), and (iii) 57 Latin Hypercube (LHS) seed points, all drawn inside the constrained per-layer space (continuous weights rescaled to mean $B$). Guided BO iterations then extend this pool; run lengths varied across methods and cells, up to a cap of 1000 evaluations (stopping rules in Appendix~\ref{app:repro}). Stage 4 runs once for every target budget and evaluates many configurations each time, so it uses a smaller subsample (10\% on both benchmarks) to keep each per-budget search affordable. Its best candidates are re-evaluated on full data, and the best of them is reported as \textbf{NAS-refined} (candidate selection in Appendix~\ref{app:repro}; calibration fidelity in Appendix~\ref{app:calib}). For each budget we thus report uniform, the rescaled Stage 2 winner (\textbf{Winner}), and NAS-refined; \textbf{MOSAIC's final configuration is the better of Winner and NAS-refined on full data} (Section~\ref{sec:which-stage}). Stage 4 does not always improve on the Winner: of the 75 cells, NAS-refined matches or beats the Winner in 51, and the Winner remains better in 24 (Figure~\ref{fig:stages}).
+
+\textbf{Selection and evaluation data.} The \emph{full data} of a cell are all examples of its task's datasets (150--500 per LongBench dataset, 500 per RULER subtask); the \emph{calibration subset} is a fixed random fraction of each dataset (30\% or 10\%, as above). Search uses the calibration subset; selection in Stages 2 and 4 and all reported scores use the full data. LongBench and RULER have no validation split, so configurations are selected and scored on the same examples: our results show gains on the evaluated examples, not generalization to unseen ones.
+
+
+\section{Experiments}
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics{figures/figure_layers.pdf}
+  \caption{\textbf{Learned per-layer allocations, SnapKV and H2O.} \textit{(a)} Stage 2 winners at their natural average budget (left). \textit{(b)} MOSAIC's final configuration for every cell (the better of Winner and NAS-refined), with the target budget on the left ($^\dagger$: searched with the earlier floor of 16) and a marker on the right for which of the two it is. \textit{(c)} For each layer, the share of the 48 allocations in (a) and (b) that give it more than its uniform share; navy bars exceed 50\%. Colour: each layer's budget divided by the row mean, on a log$_2$ scale (blue: more than the uniform share; red: less).}
+  \label{fig:heatmap}
+\end{figure*}
+
+\begin{table*}[t]
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{5pt}
+  \renewcommand{\arraystretch}{0.92}
+  \input{tables/table_main.tex}
+  \caption{\textbf{LongBench results (full data).} Uniform allocation vs.\ MOSAIC's final configuration (the better of Winner and NAS-refined) at the same average per-layer budget $B$; each score is the mean of the category's datasets (official metrics); the better of the two is in bold. $^\dagger$Rescaled Stage 3 winner (no Stage 4 search). (Mistral): Mistral-7B-Instruct-v0.2; other rows Llama-3-8B-Instruct. --: not evaluated.}
+  \label{tab:main}
+
+\end{table*}
+
+\begin{table*}[t]
+
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{6.5pt}
+  \renewcommand{\arraystretch}{0.92}
+  \input{tables/table_ruler_main.tex}
+  \caption{\textbf{RULER results (full data, string-match accuracy averaged over 11 subtasks).} Uniform allocation vs.\ MOSAIC's final configuration (the better of Winner and NAS-refined) at the same average per-layer budget; the better is in bold. $^\dagger$Rescaled Stage 3 winner (no Stage 4 search). (Mistral): Mistral-7B-Instruct-v0.2; other rows Llama-3-8B-Instruct, of which SnapKV and H2O at B1024 and above used an earlier 3--4-candidate selection. --: not evaluated.}
+  \label{tab:ruler-summary}
+\end{table*}
+
+
+
+
+
+
+
+\subsection{Setup}
+
+\textbf{Models:} Meta-Llama-3-8B-Instruct (all four methods) and Mistral-7B-Instruct-v0.2 (all four on RULER, L2Norm on LongBench). \textbf{Benchmarks:} LongBench and RULER (tasks and data in Section~\ref{sec:method-tasks}). \textbf{Methods:} SnapKV, H2O, AdaKV, L2Norm. \textbf{Budgets:} average per-layer budgets of 128--1024 on LongBench and 64--2048 on RULER; each layer receives between 64 and 4096 tokens (16 in some earlier RULER runs; Section~\ref{sec:ruler}). \textbf{Search signal:} search-time scores use a calibration subsample drawn with a fixed seed: on LongBench 30\% of each dataset in Stage 1 and 10\% in Stage 4, and on RULER 10\% of each subtask in both stages, for all four methods on Llama; the Mistral L2Norm searches use 30\% in every stage. AdaKV Summarization is still running and is not reported. Hardware is listed in Appendix~\ref{app:repro}.
+
+
+
+
+
+\subsection{Key Findings — LongBench}
+\label{sec:which-stage}
+
+Figure~\ref{fig:pareto} shows, for every eviction method and task, the budget--score trade-off that the unconstrained search finds. The dots are the configurations on the Stage 1 Pareto front, which spans a wide range of average budgets within a single search, re-evaluated on full data in Stage 2; the ring marks the Stage 2 winner. Among the strongest Stage 1/2 results, SnapKV's Code winner (58.26 at average budget 430) beats uniform at every budget up to 1024 (at most 56.73), and its Multi-Doc QA winner (36.14 at 274) beats uniform-1024 (35.87) with 27\% of its cache.
+
+\textbf{Where MOSAIC loses.} Table~\ref{tab:main} gives the full LongBench results. Across all evaluated cells, MOSAIC beats uniform in 71 of 75 (SnapKV and H2O: 35/38; AdaKV: 14/15; L2Norm: 22/22), including every CODE, Summarization and RULER cell. On Mistral-7B-Instruct-v0.2, MOSAIC beats uniform in all 40 cells (Tables~\ref{tab:transfer}--\ref{tab:ruler-summary}). The four losses are small and all on LongBench QA: Multi-Doc QA for H2O at B128 ($-0.41$) and SnapKV at B512 ($-0.04$), and Single-Doc QA for SnapKV at B256 ($-0.74$) and AdaKV at B512 ($-0.20$). Per-dataset results, including small dataset-level regressions, are in Appendix~\ref{app:dataset-reg}.
+
+\begin{figure*}[t]
+  \centering
+  \includegraphics[width=\textwidth]{figures/figure_stages.pdf}
+  \caption{\textbf{Uniform vs.\ Stage 3 and Stage 4 at every target budget (full data).} Rows: eviction method (Llama); columns: task. Stage 3: rescaled Stage 2 winner, no further search; Stage 4: NAS-refined, only at budgets where it ran.}
+  \label{fig:stages}
+\end{figure*}
+
+\textbf{Winner and NAS-refined.} Figure~\ref{fig:stages} (LongBench columns) shows uniform, Stage 3 and Stage 4 at every budget; Table~\ref{tab:transfer} summarizes them per task and method. In the 75 cells that also have a Stage 4 search, the rescaled winner already beats uniform in 66 (74 of 84 over all cells, Table~\ref{tab:transfer}); NAS-refined beats uniform in 69 and matches or beats the winner in 51 (Table~\ref{tab:transfer}). Refinement adds most on RULER and least on LongBench for SnapKV and H2O (Appendix~\ref{app:cells}).
+
+
+
+
+
+
+\subsection{Key Findings — RULER}
+\label{sec:ruler}
+
+Table~\ref{tab:ruler-summary} lists the results, and Figure~\ref{fig:stages} (RULER column) shows them per budget. MOSAIC improves on uniform in every RULER cell with a Stage 4 search, for all four methods, by up to $+9.7$ for SnapKV, $+8.3$ for AdaKV, $+33.3$ for H2O and $+47.9$ for L2Norm; the largest gains come where uniform allocation is weakest.
+
+Gains concentrate on the hardest needle subtasks: for SnapKV and H2O (floor-clean cells), MOSAIC adds $+31.9$ on niah\_multikey\_3 and $+28.0$ on niah\_single\_3, versus $+0.8$, $+3.5$ and $+5.6$ on CWE, FWE and VT. MOSAIC also recovers most of the needle subtasks that L2Norm's uniform allocation fails (Appendix~\ref{app:ruler}).
+
+
+
+
+
+\section{Analysis}
+
+% Figure 4 (task gains) disabled until regenerated from per-cell data (PAPER_ISSUES.md item 10):
+% \begin{figure}[t]
+%   \centering
+%   \includegraphics[width=0.95\columnwidth]{figures/figure4_task_gains.pdf}
+%   \caption{Performance gains of NAS best configuration over uniform allocation, by task category and budget. RULER (needle-in-haystack retrieval) shows dramatic gains (+4 to +10 points across budgets), while LongBench QA tasks show modest gains ($\leq$ 1 point). CODE tasks exhibit intermediate gains (+1 to +2.5 points). This pattern reflects task structure: RULER's positional importance is highly layer-dependent, enabling NAS to achieve substantial improvements through selective reallocation. LongBench QA distributes evidence more evenly across context, leaving less room for per-layer optimization to help.}
+%   \label{fig:gains}
+% \end{figure}
+
+
+\subsection{Shared Layer Structure}
+\label{sec:shared}
+
+\textbf{A few middle layers get more cache.} The allocations MOSAIC finds share a common shape (Figure~\ref{fig:heatmap}). For SnapKV and H2O, five middle layers (10, 14--16 and 20) receive more than an equal share of the budget in 65--85\% of the 48 allocations, while early (0--9) and late (21--29) layers do so in a median of only 32\% and 31\% (Figure~\ref{fig:heatmap}c). The pattern does not come from counting the same shape several times: without the 16 rescaled Winners, which reuse their anchor's shape at other budgets, layers 10 and 14--16 still receive more than an equal share in 66--84\% of allocations (medians 38\% and 34\% for early and late layers). AdaKV favours the same layers, more weakly (Appendix~\ref{app:adakv-shapes}).
+
+\textbf{Shapes depend on the task more than on the method.} A winner found for one task does not carry over to another: SnapKV's Code winner applied to Single-Doc QA, and the reverse, scores below uniform at every budget tested (by 0.33--1.22 points). Across eviction methods on the same task, shapes transfer well: H2O's Code winner used under SnapKV, and SnapKV's under H2O, beat uniform at every budget ($+0.06$ to $+1.66$), although not the receiving method's own MOSAIC configuration (Appendix~\ref{app:transfer}). Each task therefore needs its own search, while a shape found for one eviction method is a good starting point for another.
+
+\subsection{Task and Method Patterns}
+
+Gains are largest on RULER. Within LongBench they are largest on Code, smaller on the two QA categories and smallest on Summarization, an ordering that holds for every method (Table~\ref{tab:transfer}). Across methods, H2O shows the largest RULER gains ($+18$ to $+33$ at B1024--B2048). AdaKV, which already allocates budget adaptively across heads within a layer, still gains from reallocation across layers: $+4.1$ to $+8.3$ on RULER and up to $+1.98$ on LongBench. L2Norm shows the largest LongBench gains (Code $+4.9$ to $+9.5$), but from a weak baseline: at B128 its uniform Single-Doc QA score is 10.2, against 33.0 for SnapKV.
+
+\section{Comparison with EvolKV}
+\label{sec:evolkv}
+
+We reproduce EvolKV \citep{yu2025evolkv} in its \emph{direct} setting (a search at each budget) and its main \emph{expanded} protocol (one B128 search, rescaled), with SnapKV on Code and Single-Doc QA, all re-evaluated on full data (Table~\ref{tab:ablation}).
+
+\textbf{How the protocols differ.} Both rescale one allocation or search at each budget, but find that allocation differently. EvolKV fixes the target budget before searching and returns one allocation; MOSAIC's Stage 1 treats average budget and task score as separate objectives, and Stage 2 selects one anchor from the Pareto front. EvolKV runs CMA-ES on one 8-layer group at a time (earlier groups frozen), starting from uniform; its four searches cover about $10^{16}$ allocations at B128. MOSAIC searches all $L$ budgets jointly, about $10^{69}$ allocations at B128 (${\sim}10^{53}\times$ larger) and in Stage 1 up to $10^{27}$ configurations across all budgets (\S\ref{sec:formulation}).
+
+\begin{table}[t]
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{0.92}
+  \begin{tabular}{@{} c l rrrr @{}}
+    \toprule
+    \textbf{Task} & \textbf{Protocol} & \textbf{128} & \textbf{256} & \textbf{512} & \textbf{1024} \\
+    \midrule
+    \multirow{5}{*}{\shortstack[c]{Code}} & Uniform & 54.81 & 55.67 & 56.73 & 56.02 \\
+     & EvolKV direct & 54.92 & -- & 57.02 & 57.20 \\
+     & EvolKV expanded & 54.92 & 55.99 & 56.82 & 56.42 \\
+     & MOSAIC Winner & 55.86 & \textbf{57.33} & \textbf{58.16} & 58.52 \\
+     & MOSAIC (final) & \textbf{56.09} & \textbf{57.33} & \textbf{58.16} & \textbf{58.91} \\
+    \midrule
+    \multirow{5}{*}{\shortstack[c]{Single-Doc\\QA}} & Uniform & 32.97 & 35.25 & 35.97 & 36.44 \\
+     & EvolKV direct & 33.50 & -- & 36.28 & 36.40 \\
+     & EvolKV expanded & 33.50 & \textbf{35.43} & 36.14 & 36.38 \\
+     & MOSAIC Winner & 33.51 & 34.51 & \textbf{36.33} & 36.46 \\
+     & MOSAIC (final) & \textbf{33.67} & 34.51 & \textbf{36.33} & \textbf{37.01} \\
+    \bottomrule
+  \end{tabular}
+  \caption{\textbf{EvolKV vs.\ MOSAIC (SnapKV, full data).} Direct: an EvolKV search at each budget (none at B256). Expanded: EvolKV's main protocol, its B128 allocation rescaled. Winner: MOSAIC's Stage 2 winner, searched once and rescaled. MOSAIC (final): the better of Winner and NAS-refined. Bold: best in each column.}
+  \label{tab:ablation}
+\end{table}
+
+Searching once, MOSAIC's Winner beats expanded EvolKV in 5 of 6 transferred cells (B256--B1024; Code $+1.34$ to $+2.10$, Single-Doc QA $-0.92$ to $+0.19$). \textbf{It also beats direct EvolKV}, a search at each budget, in all 6 cells where both ran (Code $+0.94$ to $+1.32$, Single-Doc QA $+0.01$ to $+0.06$), with no per-budget search. Search costs and a compute-matched per-budget comparison are in Appendix~\ref{app:cost}. 
+
+\FloatBarrier
+\section{Conclusion}
+
+MOSAIC beats uniform in 71 of 75 Llama cells and all 40 Mistral cells. One search transfers across budgets, and allocations favour a few middle layers.
+
+\clearpage
+\section*{Limitations}
+
+\begin{itemize}
+\item \textbf{Evaluation data:} configurations are selected on the same benchmark examples on which they are scored; we do not evaluate on held-out examples.
+\item \textbf{Cost:} including the one-time Stages 1--2, per-budget refinement costs more than EvolKV (Appendix~\ref{app:cost}), and AdaKV searches are slower (Appendix~\ref{app:cost}).
+\item \textbf{Uneven settings:} some RULER cells used a per-layer floor of 16, AdaKV's LongBench winners were selected on calibration score, and stopping rules differed across methods (Appendix~\ref{app:repro}).
+\item \textbf{Scope:} two models, with Mistral-7B-Instruct-v0.2 LongBench evaluated for L2Norm only; allocations are searched per task; the guided search is not compared with random search at equal cost (Appendix~\ref{app:dynamics}).
+\end{itemize}
+
+\FloatBarrier
+
+\bibliography{custom}
+
+\input{appendix}
+
+\end{document}

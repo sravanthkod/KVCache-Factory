@@ -1,0 +1,34 @@
+-> /home/snap_nas/sravanth/LLM/Token_Eviction/Dynamic_Methods/KVCache-Factory/ICLR_Final_Results/analysis_outputs/A4_layer_importance_heatmap.png
+layer | mean log2(budget/avg) | share of rows above uniform
+L0  | -1.16 | 21%
+L1  | -0.67 | 33%
+L2  | -0.22 | 53%
+L3  | -0.80 | 33%
+L4  | -0.98 | 19%
+L5  | -0.78 | 37%
+L6  | -1.07 | 26%
+L7  | -0.49 | 40%
+L8  | -0.36 | 49%
+L9  | -0.92 | 35%
+L10 | +0.44 | 77%
+L11 | -0.32 | 49%
+L12 | -0.89 | 35%
+L13 | -0.10 | 51%
+L14 | +0.51 | 74%
+L15 | +0.51 | 77%
+L16 | +0.25 | 63%
+L17 | -0.13 | 44%
+L18 | -0.29 | 58%
+L19 | -1.04 | 33%
+L20 | +0.07 | 60%
+L21 | -0.99 | 30%
+L22 | -0.95 | 30%
+L23 | -0.45 | 49%
+L24 | -0.08 | 53%
+L25 | -0.89 | 28%
+L26 | -1.14 | 23%
+L27 | -0.75 | 30%
+L28 | -1.31 | 19%
+L29 | -1.14 | 23%
+L30 | -0.44 | 37%
+L31 | -0.99 | 30%

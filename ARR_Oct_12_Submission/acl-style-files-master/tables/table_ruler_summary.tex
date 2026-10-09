@@ -1,0 +1,62 @@
+% RULER results table (main text); was in the appendix briefly on 2026-10-05
+\begin{table}[t]
+  \centering
+  \footnotesize
+  \setlength{\tabcolsep}{7pt}
+  \begin{tabular}{@{} l r r r @{}}
+    \toprule
+    \textbf{Budget} & \textbf{Uniform} & \textbf{MOSAIC} & \textbf{Gain (pts)} \\
+    \midrule
+    \multicolumn{4}{c}{\textbf{\textit{SnapKV}}} \\
+    \midrule
+    \rowcolor{gray!10}
+    64 & 34.64 & 44.99$^\dagger$ & +10.35 \\
+    128 & 51.56 & 58.37 & +6.80 \\
+    \rowcolor{gray!10}
+    256 & 68.06 & 72.28 & +4.21 \\
+    512 & 78.62 & 81.76$^\dagger$ & +3.14 \\
+    \rowcolor{gray!10}
+    1024 & 85.67 & 93.80 & +8.13 \\
+    1536 & 88.62 & 98.35 & +9.73 \\
+    \rowcolor{gray!10}
+    2048 & 92.93 & 98.91 & +5.98 \\
+    \midrule
+    \multicolumn{4}{c}{\textbf{\textit{H2O}}} \\
+    \midrule
+    \rowcolor{gray!10}
+    128 & 12.19 & 15.39 & +3.19 \\
+    1024 & 44.35 & 62.52 & +18.17 \\
+    \rowcolor{gray!10}
+    1536 & 53.39 & 86.05 & +32.66 \\
+    2048 & 62.82 & 96.14 & +33.32 \\
+    \midrule
+    \multicolumn{4}{c}{\textbf{\textit{AdaKV}}} \\
+    \midrule
+    \rowcolor{gray!10}
+    64 & 35.81 & 35.97$^\dagger$ & +0.16 \\
+    128 & 50.87 & 57.40 & +6.53 \\
+    \rowcolor{gray!10}
+    256 & 68.02 & 72.10 & +4.08 \\
+    512 & 78.22 & 83.08 & +4.85 \\
+    \rowcolor{gray!10}
+    1024 & 86.87 & 93.78 & +6.91 \\
+    1536 & 89.75 & 97.99 & +8.25 \\
+    \rowcolor{gray!10}
+    2048 & 93.90 & 98.65 & +4.75 \\
+    \midrule
+    \multicolumn{4}{c}{\textbf{\textit{L2Norm}}} \\
+    \midrule
+    \rowcolor{gray!10}
+    128 & 4.63 & 13.68 & +9.05 \\
+    256 & 17.74 & 20.83 & +3.10 \\
+    \rowcolor{gray!10}
+    512 & 27.17 & 29.42 & +2.25 \\
+    1024 & 35.59 & 67.03 & +31.45 \\
+    \rowcolor{gray!10}
+    1536 & 42.28 & 90.19 & +47.91 \\
+    2048 & 49.70 & 97.21 & +47.51 \\
+    \bottomrule
+  \end{tabular}
+  \caption{\textbf{RULER results (full data, string-match accuracy averaged over 11 subtasks).} Uniform allocation vs.\ MOSAIC's final configuration at the same average budget, i.e.\ the better of Winner and NAS-refined on full data. $^\dagger$No Stage 4 search at this budget: rescaled Stage 3 winner only. Winner and NAS-refined are compared in Figure~\ref{fig:stages} and listed per cell in Appendix~\ref{app:cells}. SnapKV and H2O at B1024 and above were evaluated with an earlier 3--4-candidate selection; their MOSAIC entries are the best of the candidates evaluated. Floor 16 applies at B1024--B2048 for SnapKV, H2O and AdaKV, at B64 and B512 for SnapKV, and at B64 for AdaKV; L2Norm uses floor 64 throughout (Appendix~\ref{app:floor}).}
+  \label{tab:ruler-summary}
+\end{table}

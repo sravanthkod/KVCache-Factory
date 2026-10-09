@@ -1,0 +1,242 @@
+[
+ {
+  "cat": "CODE",
+  "T": 512,
+  "row": 0,
+  "label": "uniform",
+  "calib_0_1": 60.75,
+  "full_known": 56.735,
+  "job_full": null,
+  "job_0_3": "calib_CODE_B512_row0_r0.3"
+ },
+ {
+  "cat": "CODE",
+  "T": 512,
+  "row": 1,
+  "label": "heuristic",
+  "calib_0_1": 62.27,
+  "full_known": 58.01,
+  "job_full": null,
+  "job_0_3": "calib_CODE_B512_row1_r0.3"
+ },
+ {
+  "cat": "CODE",
+  "T": 512,
+  "row": 4,
+  "label": "heuristic",
+  "calib_0_1": 60.84,
+  "full_known": null,
+  "job_full": "calib_CODE_B512_row4_r1.0",
+  "job_0_3": "calib_CODE_B512_row4_r0.3"
+ },
+ {
+  "cat": "CODE",
+  "T": 512,
+  "row": 5,
+  "label": "heuristic",
+  "calib_0_1": 60.48,
+  "full_known": null,
+  "job_full": "calib_CODE_B512_row5_r1.0",
+  "job_0_3": "calib_CODE_B512_row5_r0.3"
+ },
+ {
+  "cat": "CODE",
+  "T": 512,
+  "row": 6,
+  "label": "winner",
+  "calib_0_1": 62.3,
+  "full_known": 58.165,
+  "job_full": null,
+  "job_0_3": "calib_CODE_B512_row6_r0.3"
+ },
+ {
+  "cat": "CODE",
+  "T": 512,
+  "row": 9,
+  "label": "random",
+  "calib_0_1": 60.16,
+  "full_known": null,
+  "job_full": "calib_CODE_B512_row9_r1.0",
+  "job_0_3": "calib_CODE_B512_row9_r0.3"
+ },
+ {
+  "cat": "CODE",
+  "T": 512,
+  "row": 18,
+  "label": "random",
+  "calib_0_1": 62.64,
+  "full_known": null,
+  "job_full": "calib_CODE_B512_row18_r1.0",
+  "job_0_3": "calib_CODE_B512_row18_r0.3"
+ },
+ {
+  "cat": "CODE",
+  "T": 512,
+  "row": 25,
+  "label": "random",
+  "calib_0_1": 63.42,
+  "full_known": 57.775,
+  "job_full": null,
+  "job_0_3": "calib_CODE_B512_row25_r0.3"
+ },
+ {
+  "cat": "CODE",
+  "T": 512,
+  "row": 34,
+  "label": "random",
+  "calib_0_1": 59.78,
+  "full_known": null,
+  "job_full": "calib_CODE_B512_row34_r1.0",
+  "job_0_3": "calib_CODE_B512_row34_r0.3"
+ },
+ {
+  "cat": "CODE",
+  "T": 512,
+  "row": 36,
+  "label": "random",
+  "calib_0_1": 60.93,
+  "full_known": null,
+  "job_full": "calib_CODE_B512_row36_r1.0",
+  "job_0_3": "calib_CODE_B512_row36_r0.3"
+ },
+ {
+  "cat": "CODE",
+  "T": 512,
+  "row": 42,
+  "label": "random",
+  "calib_0_1": 61.76,
+  "full_known": null,
+  "job_full": "calib_CODE_B512_row42_r1.0",
+  "job_0_3": "calib_CODE_B512_row42_r0.3"
+ },
+ {
+  "cat": "CODE",
+  "T": 512,
+  "row": 43,
+  "label": "random",
+  "calib_0_1": 62.08,
+  "full_known": null,
+  "job_full": "calib_CODE_B512_row43_r1.0",
+  "job_0_3": "calib_CODE_B512_row43_r0.3"
+ },
+ {
+  "cat": "CODE",
+  "T": 512,
+  "row": 52,
+  "label": "random",
+  "calib_0_1": 61.62,
+  "full_known": null,
+  "job_full": "calib_CODE_B512_row52_r1.0",
+  "job_0_3": "calib_CODE_B512_row52_r0.3"
+ },
+ {
+  "cat": "CODE",
+  "T": 512,
+  "row": 55,
+  "label": "random",
+  "calib_0_1": 62.56,
+  "full_known": null,
+  "job_full": "calib_CODE_B512_row55_r1.0",
+  "job_0_3": "calib_CODE_B512_row55_r0.3"
+ },
+ {
+  "cat": "CODE",
+  "T": 512,
+  "row": 72,
+  "label": "bo",
+  "calib_0_1": 59.06,
+  "full_known": null,
+  "job_full": "calib_CODE_B512_row72_r1.0",
+  "job_0_3": "calib_CODE_B512_row72_r0.3"
+ },
+ {
+  "cat": "CODE",
+  "T": 512,
+  "row": 88,
+  "label": "bo",
+  "calib_0_1": 62.21,
+  "full_known": null,
+  "job_full": "calib_CODE_B512_row88_r1.0",
+  "job_0_3": "calib_CODE_B512_row88_r0.3"
+ },
+ {
+  "cat": "CODE",
+  "T": 512,
+  "row": 91,
+  "label": "bo",
+  "calib_0_1": 59.75,
+  "full_known": null,
+  "job_full": "calib_CODE_B512_row91_r1.0",
+  "job_0_3": "calib_CODE_B512_row91_r0.3"
+ },
+ {
+  "cat": "CODE",
+  "T": 512,
+  "row": 92,
+  "label": "bo",
+  "calib_0_1": 60.54,
+  "full_known": null,
+  "job_full": "calib_CODE_B512_row92_r1.0",
+  "job_0_3": "calib_CODE_B512_row92_r0.3"
+ },
+ {
+  "cat": "CODE",
+  "T": 512,
+  "row": 101,
+  "label": "bo",
+  "calib_0_1": 61.7,
+  "full_known": null,
+  "job_full": "calib_CODE_B512_row101_r1.0",
+  "job_0_3": "calib_CODE_B512_row101_r0.3"
+ },
+ {
+  "cat": "CODE",
+  "T": 512,
+  "row": 107,
+  "label": "bo",
+  "calib_0_1": 63.74,
+  "full_known": 55.665,
+  "job_full": null,
+  "job_0_3": "calib_CODE_B512_row107_r0.3"
+ },
+ {
+  "cat": "CODE",
+  "T": 512,
+  "row": 109,
+  "label": "bo",
+  "calib_0_1": 58.11,
+  "full_known": null,
+  "job_full": "calib_CODE_B512_row109_r1.0",
+  "job_0_3": "calib_CODE_B512_row109_r0.3"
+ },
+ {
+  "cat": "CODE",
+  "T": 512,
+  "row": 110,
+  "label": "bo",
+  "calib_0_1": 59.92,
+  "full_known": null,
+  "job_full": "calib_CODE_B512_row110_r1.0",
+  "job_0_3": "calib_CODE_B512_row110_r0.3"
+ },
+ {
+  "cat": "CODE",
+  "T": 512,
+  "row": 119,
+  "label": "bo",
+  "calib_0_1": 59.37,
+  "full_known": null,
+  "job_full": "calib_CODE_B512_row119_r1.0",
+  "job_0_3": "calib_CODE_B512_row119_r0.3"
+ },
+ {
+  "cat": "CODE",
+  "T": 512,
+  "row": 127,
+  "label": "bo",
+  "calib_0_1": 56.28,
+  "full_known": null,
+  "job_full": "calib_CODE_B512_row127_r1.0",
+  "job_0_3": "calib_CODE_B512_row127_r0.3"
+ }
+]

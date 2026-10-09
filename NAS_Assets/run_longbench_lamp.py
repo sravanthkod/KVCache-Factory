@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import random
+import re
 import argparse
 import glob
 import subprocess
@@ -71,7 +72,7 @@ model2maxlen = {
     "llama-2": 3950,
     "llama3": 7500,
     "llama-3": 7500,
-    "mistral": 31500
+    "mistral": 7500
 }
 
 datasets = ["narrativeqa", "qasper", "multifieldqa_en", "hotpotqa", "2wikimqa", "musique", \
@@ -524,7 +525,8 @@ def run_dataset_calibration_with_scoring(model, tokenizer, dataset, data_dir, mo
                                           quant_method=None, nbits=8,
                                           quant_backend="hqq", quant_device="cuda",
                                           quant_residual_length=None,
-                                          q_group_size=64, axis_key=None, axis_value=None):
+                                          q_group_size=64, axis_key=None, axis_value=None,
+                                          save_predictions_path=None):
     """
     Run calibration on a single dataset with generation + task scoring.
     This is slower than evicted attention but directly measures generation quality.
@@ -719,6 +721,17 @@ def run_dataset_calibration_with_scoring(model, tokenizer, dataset, data_dir, mo
     score = scorer(dataset, predictions, answers, all_classes_list)
     print(f"  dataset: {dataset} → avg_budget={avg_budget:.1f}, task_score={score:.2f}")
 
+    if save_predictions_path is not None:
+        os.makedirs(os.path.dirname(save_predictions_path), exist_ok=True)
+        with open(save_predictions_path, "w") as fout:
+            for example, pred in zip(sampled_data, predictions):
+                fout.write(json.dumps({
+                    "pred": pred,
+                    "answers": example["answers"],
+                    "all_classes": example.get("all_classes", ""),
+                    "length": example.get("length"),
+                }) + "\n")
+
     return avg_budget, score
 
 
@@ -761,6 +774,92 @@ NAS_TASK_CATEGORY = os.environ.get("NAS_TASK_CATEGORY", "MULTI_DOCUMENT_QA")
 # NAS_F2_METRIC = os.environ.get("NAS_F2_METRIC", "evicted_attn")
 NAS_F2_METRIC = os.environ.get("NAS_F2_METRIC", "task_score")
 
+# ─── Fixed-budget-slice mode ("Design B") ─────────────────────────────────────
+# NAS_TARGET_BUDGET > 0 pins every candidate's MEAN per-layer budget to the
+# target: X is decoded as continuous proportional weights (any integer budgets,
+# exact total) instead of the 7-option grid. Unset/0 → original unconstrained
+# grid behavior, bit-for-bit. Ported verbatim from run_ruler_lamp.py.
+NAS_TARGET_BUDGET = int(os.environ.get("NAS_TARGET_BUDGET", "0"))
+NAS_MIN_BUDGET = int(os.environ.get("NAS_MIN_BUDGET", "64"))
+NAS_MAX_BUDGET = int(os.environ.get("NAS_MAX_BUDGET", "4096"))
+
+
+def x_point_to_budgets_continuous(X_point, num_layers, target_budget,
+                                  min_budget=64, max_budget=4096):
+    """Decode X in [0,1]^D to integer per-layer budgets whose SUM is exactly
+    num_layers * target_budget (mean pinned to the target).
+
+    Proportional split b_i = T * x_i / sum(x), clamped to [min_budget,
+    max_budget] with the clamp residual redistributed over unclamped layers,
+    then largest-remainder rounding on the unclamped layers for an exact
+    total. Pure function of X (deterministic), so the surrogate can learn it.
+    """
+    T = int(target_budget) * num_layers
+    w = np.clip(np.asarray(X_point, dtype=float)[:num_layers], 1e-6, None)
+    if len(w) < num_layers:  # D < num_layers: cycle like the grid decoder
+        w = np.array([w[i % len(w)] for i in range(num_layers)])
+
+    # Iterative water-filling: fix over-max layers at max and redistribute the
+    # surplus (which can lift under-min layers back above min), then fix
+    # under-min layers at min. Converges in <= num_layers passes.
+    budgets = np.zeros(num_layers)
+    fixed = np.zeros(num_layers, dtype=bool)
+    fixed_value = np.zeros(num_layers)
+    for _ in range(num_layers):
+        free = ~fixed
+        if not free.any():
+            break
+        remaining = T - fixed_value[fixed].sum()
+        budgets[free] = remaining * w[free] / w[free].sum()
+        hi = (budgets > max_budget) & free
+        if hi.any():
+            fixed[hi] = True
+            fixed_value[hi] = max_budget
+            continue
+        lo = (budgets < min_budget) & free
+        if lo.any():
+            fixed[lo] = True
+            fixed_value[lo] = min_budget
+            continue
+        break
+    budgets[fixed] = fixed_value[fixed]
+
+    # Largest-remainder rounding on free layers → exact sum
+    floors = np.floor(budgets)
+    free = ~fixed
+    shortfall = int(T - floors.sum())
+    result = floors.astype(int)
+    if shortfall > 0 and free.any():
+        remainders = budgets - floors
+        remainders[~free] = -1.0  # never bump clamped layers
+        order = np.argsort(-remainders, kind="stable")
+        for idx in order[:min(shortfall, int(free.sum()))]:
+            result[idx] += 1
+    # Residual only in the truly unreachable cases (target below min*L or
+    # above max*L) — accepted; the f1 log column exposes any drift.
+    result = np.clip(result, min_budget, max_budget)
+    return [int(b) for b in result]
+
+
+def _decode_budgets(X_point, num_layers):
+    """Mode dispatcher: slice mode → continuous decode; else the original grid."""
+    if NAS_TARGET_BUDGET > 0:
+        return x_point_to_budgets_continuous(
+            X_point, num_layers, NAS_TARGET_BUDGET, NAS_MIN_BUDGET, NAS_MAX_BUDGET)
+    return x_point_to_budgets(X_point, num_layers)
+
+
+_NUM_LAYERS = None
+
+
+def _get_num_layers():
+    """num_hidden_layers without loading weights (parent stays CPU-only)."""
+    global _NUM_LAYERS
+    if _NUM_LAYERS is None:
+        from transformers import AutoConfig
+        _NUM_LAYERS = AutoConfig.from_pretrained(NAS_MODEL_PATH).num_hidden_layers
+    return _NUM_LAYERS
+
 
 def get_objective_values(X_point):
     """
@@ -781,25 +880,32 @@ def get_objective_values(X_point):
             f1 = average_budget  (avg KV cache budget across layers — minimize memory)
             f2 = evicted_attention_sum  (sum of attention on evicted tokens — minimize)
     """
-    # Load dataset list from data_clustering.json — use task-wise category
+    # Load dataset list from data_clustering.json — use task-wise category.
+    # Slice runs use suffixed category names (e.g. SINGLE_DOCUMENT_QA_B128) so
+    # their outputs get their own directory; the datasets come from the base key
+    # (same pattern as run_ruler_lamp.py / eval_top_configs_longbench.py).
     clustering = load_data_clustering()
     task_category = NAS_TASK_CATEGORY
-    if task_category not in clustering:
+    lookup_key = task_category if task_category in clustering \
+        else re.sub(r"_B\d+$", "", task_category)
+    if lookup_key not in clustering:
         raise ValueError(
-            f"Task category '{task_category}' not found in data_clustering.json. "
+            f"Task category '{task_category}' (lookup '{lookup_key}') not found in "
+            f"data_clustering.json. "
             f"Available: {[k for k in clustering if k != 'DATASET2METRIC' and k != 'TOTAL_DATASETS']}"
         )
-    datasets = clustering[task_category]
-    print(f"[get_objective_values] Task category: {task_category}, datasets: {datasets}")
+    datasets = clustering[lookup_key]
+    mode = f"slice(target={NAS_TARGET_BUDGET})" if NAS_TARGET_BUDGET > 0 else "unconstrained"
+    print(f"[get_objective_values] Task category: {task_category} ({mode}), datasets: {datasets}")
 
     # Load model (cached globally after first call)
     model, tokenizer = _ensure_model_loaded(
         NAS_MODEL_PATH, NAS_METHOD, NAS_ATTN_IMPL
     )
 
-    # Convert X_point to per-layer budgets (discrete)
+    # Convert X_point to per-layer budgets (grid, or continuous in slice mode)
     num_layers = len(model.model.layers)
-    max_capacity_prompts = x_point_to_budgets(X_point, num_layers)
+    max_capacity_prompts = _decode_budgets(X_point, num_layers)
 
     print(f"[get_objective_values] X_point (first 5): {X_point[:5]}")
     print(f"[get_objective_values] Per-layer budgets: {max_capacity_prompts}")

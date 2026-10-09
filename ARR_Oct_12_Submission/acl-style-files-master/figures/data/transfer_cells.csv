@@ -1,0 +1,13 @@
+shape,applied_to,budget,uniform,transferred,own_winner,own_final
+SnapKV Code,SnapKV SingleDoc,128,32.97,32.43,33.51,33.67
+SnapKV Code,SnapKV SingleDoc,512,35.97,34.89,36.33,36.33
+SnapKV Code,SnapKV SingleDoc,1024,36.44,36.11,36.46,37.01
+SnapKV Single-Doc,SnapKV Code,128,54.81,54.00,55.86,56.09
+SnapKV Single-Doc,SnapKV Code,512,56.73,55.52,58.16,58.16
+SnapKV Single-Doc,SnapKV Code,1024,56.02,55.39,58.52,58.91
+H2O Code,SnapKV Code,128,54.81,54.88,55.86,56.09
+H2O Code,SnapKV Code,512,56.73,57.48,58.16,58.16
+H2O Code,SnapKV Code,1024,56.02,57.68,58.52,58.91
+SnapKV Code,H2O Code,128,45.96,46.75,46.59,47.13
+SnapKV Code,H2O Code,512,52.81,53.77,54.03,54.51
+SnapKV Code,H2O Code,1024,56.92,57.05,56.15,57.23

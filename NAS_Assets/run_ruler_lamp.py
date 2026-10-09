@@ -48,7 +48,7 @@ model2maxlen = {
     "llama-2": 3950,
     "llama3": 7500,
     "llama-3": 7500,
-    "mistral": 31500,
+    "mistral": 7500,
 }
 
 
@@ -314,12 +314,12 @@ NAS_GPUS = [g for g in os.environ.get("NAS_GPUS", "").replace(" ", "").split(","
 # exact total) instead of the 7-option grid. Unset/0 → original unconstrained
 # grid behavior, bit-for-bit.
 NAS_TARGET_BUDGET = int(os.environ.get("NAS_TARGET_BUDGET", "0"))
-NAS_MIN_BUDGET = int(os.environ.get("NAS_MIN_BUDGET", "16"))
+NAS_MIN_BUDGET = int(os.environ.get("NAS_MIN_BUDGET", "64"))
 NAS_MAX_BUDGET = int(os.environ.get("NAS_MAX_BUDGET", "4096"))
 
 
 def x_point_to_budgets_continuous(X_point, num_layers, target_budget,
-                                  min_budget=16, max_budget=4096):
+                                  min_budget=64, max_budget=4096):
     """Decode X in [0,1]^D to integer per-layer budgets whose SUM is exactly
     num_layers * target_budget (mean pinned to the target).
 

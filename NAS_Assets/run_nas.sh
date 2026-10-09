@@ -16,9 +16,19 @@
 
 set -e
 
-# export CUDA_VISIBLE_DEVICES=0
-export CUDA_VISIBLE_DEVICES=1
-# export CUDA_VISIBLE_DEVICES=2
+# GPU: override via NAS_GPUS, e.g. NAS_GPUS=2 bash run_nas.sh (matches run_nas_ruler.sh's pattern)
+export NAS_GPUS="${NAS_GPUS:-1}"
+export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-$NAS_GPUS}"
+
+# Explicit for clarity/robustness — HFF_mod.py defaults to "longbench" when unset,
+# but this run_nas.sh has always relied on that implicit default until now.
+export NAS_BENCHMARK="longbench"
+
+# Python interpreter: bare `python3` can resolve to a broken environment
+# (transformers incompatibility) — pin to the cakekv env, same as run_nas_ruler.sh.
+PYTHON_BIN="${PYTHON_BIN:-/home/test/miniconda/envs/cakekv/bin/python}"
+export PYTHONNOUSERSITE=1
+
 # ─── Configuration (override via environment variables) ──────────────────────
 
 # Model path
@@ -104,7 +114,7 @@ LOG_FILE="${NAS_TASK_CATEGORY}/${NAS_METHOD}/nas_run.log"
 mkdir -p "${NAS_TASK_CATEGORY}/${NAS_METHOD}"
 
 
-python3 LAMP.py 2>&1 | tee "$LOG_FILE"
+"$PYTHON_BIN" LAMP.py 2>&1 | tee "$LOG_FILE"
 
 echo ""
 echo "══════════════════════════════════════════════════════════════"

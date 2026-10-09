@@ -1,0 +1,2 @@
+arch,avg_budget,nas_f2,niah_single_1,niah_single_2,niah_single_3,niah_multikey_1,niah_multikey_2,niah_multikey_3,niah_multiquery,niah_multivalue,cwe,fwe,vt,mean_score,budgets
+1,64.0,0.0,0.2,0.0,0.0,0.0,0.0,0.0,0.0,0.0,2.14,0.47,0.0,0.2554545454545455,64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64 64

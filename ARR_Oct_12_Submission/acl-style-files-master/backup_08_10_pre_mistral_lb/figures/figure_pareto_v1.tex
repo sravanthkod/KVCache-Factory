@@ -1,0 +1,57 @@
+% Pareto figure: Stage 2 full-data scores vs uniform. Data: python3 ../make_pareto_data.py ; build: pdflatex figure_pareto.tex
+\documentclass[border=2pt]{standalone}
+\usepackage[scaled=0.92]{helvet}
+\renewcommand\familydefault{\sfdefault}
+\usepackage[T1]{fontenc}
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots}
+\usetikzlibrary{calc}
+\pgfplotsset{compat=1.17}
+
+\definecolor{chartdark}{HTML}{1F4E79}
+\definecolor{chartlight}{HTML}{8FA6BC}
+\definecolor{win}{HTML}{D9822B}
+
+\pgfplotsset{
+  pan/.style={scale only axis, width=2.55cm, height=2.3cm, xmode=log, log basis x=2,
+    log ticks with fixed point, xtick={64,256,1024,4096}, xticklabels={64,256,1k,4k},
+    tick label style={font=\scriptsize}, title style={font=\footnotesize\bfseries, yshift=-3pt},
+    grid=major, grid style={gray!18, line width=0.3pt}, axis line style={gray!60},
+    tick style={gray!60}, every axis title/.append style={text=black!85}},
+  uni/.style={#1, densely dashed, line width=0.8pt, mark=square*, mark size=1.0pt,
+    mark options={solid, fill=white}},
+  nas/.style={#1, only marks, mark=*, mark size=1.25pt, fill opacity=0.85, draw opacity=0.9},
+}
+\newcommand{\series}[2]{% #1 = CATEGORY, #2 = method
+  \addplot[uni=c#2] table[x=budget, y=score] {data/pareto_#1_#2_uni.dat};
+  \addplot[nas=c#2] table[x=budget, y=score] {data/pareto_#1_#2_nas.dat};
+  \addplot[c#2, only marks, mark=o, mark size=2.7pt, line width=0.7pt] table[x=budget, y=score] {data/pareto_#1_#2_best.dat};}
+\colorlet{csnapkv}{chartdark}
+\colorlet{ch2o}{chartlight}
+\colorlet{cadakv}{win}
+
+\begin{document}
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=5 by 1, horizontal sep=0.62cm}, pan]
+  \nextgroupplot[title={Single-Doc QA}, ylabel={full-data score}, ylabel style={font=\scriptsize, yshift=-4pt},
+    legend to name=paretoleg, legend columns=6, legend style={font=\scriptsize, draw=none, column sep=4pt}]
+    \addlegendimage{black!70, densely dashed, line width=0.8pt, mark=square*, mark size=1.0pt, mark options={solid, fill=white}}\addlegendentry{uniform}
+    \addlegendimage{black!70, only marks, mark=*, mark size=1.25pt}\addlegendentry{MOSAIC Stage 2}
+    \addlegendimage{black!70, only marks, mark=o, mark size=2.7pt, line width=0.7pt}\addlegendentry{winner\hspace{8pt}}
+    \addlegendimage{only marks, mark=square*, mark size=2pt, chartdark}\addlegendentry{SnapKV}
+    \addlegendimage{only marks, mark=square*, mark size=2pt, chartlight}\addlegendentry{H2O}
+    \addlegendimage{only marks, mark=square*, mark size=2pt, win}\addlegendentry{AdaKV}
+    \series{SINGLE_DOCUMENT_QA}{snapkv}\series{SINGLE_DOCUMENT_QA}{h2o}\series{SINGLE_DOCUMENT_QA}{adakv}
+  \nextgroupplot[title={Multi-Doc QA}]
+    \series{MULTI_DOCUMENT_QA}{snapkv}\series{MULTI_DOCUMENT_QA}{h2o}\series{MULTI_DOCUMENT_QA}{adakv}
+  \nextgroupplot[title={Code}]
+    \series{CODE}{snapkv}\series{CODE}{h2o}\series{CODE}{adakv}
+  \nextgroupplot[title={Summarization}]
+    \series{SUMMARIZATION}{snapkv}\series{SUMMARIZATION}{h2o}
+  \nextgroupplot[title={RULER}]
+    \series{RULER_ALL}{snapkv}\series{RULER_ALL}{adakv}
+\end{groupplot}
+\node[anchor=south] at ($(group c3r1.north)+(0,0.42)$) {\pgfplotslegendfromname{paretoleg}};
+\node[font=\scriptsize, text=black!70, anchor=north] at ($(group c3r1.south)+(0,-0.42)$) {average per-layer KV budget (tokens, log scale)};
+\end{tikzpicture}
+\end{document}

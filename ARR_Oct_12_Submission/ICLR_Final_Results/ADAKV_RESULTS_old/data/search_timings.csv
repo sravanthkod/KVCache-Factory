@@ -1,0 +1,19 @@
+stage,benchmark,run,archive_rows,guided_iterations,timed_evals_in_logs,mean_sec_per_eval,archive_gpu_hours,total_logged_gpu_hours_incl_restarts,est_wall_clock_hours,log_sessions,first_session,last_archive_write,log_files
+Stage 1,LongBench,Single-Doc QA,450,386,449,269.0,33.62,33.55,40.7,1,,2026-08-17,SINGLE_DOCUMENT_QA/adakv/nas_run.log
+Stage 1,LongBench,Multi-Doc QA,400,336,400,288.8,32.09,32.09,38.25,1,,2026-08-17,MULTI_DOCUMENT_QA/adakv/nas_run.log
+Stage 1,LongBench,Code,149,85,145,867.2,35.89,34.93,37.45,1,,2026-08-17,CODE/adakv/nas_run.log
+Stage 4,LongBench,Single-Doc QA B128,141,77,138,562.6,22.04,21.57,23.45,1,2026-09-07,2026-09-08,sravanth_logs/NAS_LONGBENCH_SINGLE_DOCUMENT_QA_B128_adakv_07_09_2026.log
+Stage 4,LongBench,Single-Doc QA B256,147,83,143,535.8,21.88,21.29,23.4,1,2026-09-07,2026-09-08,sravanth_logs/NAS_LONGBENCH_SINGLE_DOCUMENT_QA_B256_adakv_07_09_2026.log
+Stage 4,LongBench,Single-Doc QA B512,253,189,299,361.2,25.38,30.0,28.85,3,2026-09-08,2026-09-10,sravanth_logs/NAS_LONGBENCH_SINGLE_DOCUMENT_QA_B512_adakv_08_09_2026.log sravanth_logs/NAS_LONGBENCH_SINGLE_DOCUMENT_QA_B512_adakv_09_09_2026.log sravanth_logs/NAS_LONGBENCH_SINGLE_DOCUMENT_QA_B512_adakv_09_09_2026_r3.log
+Stage 4,LongBench,Multi-Doc QA B128,166,102,210,548.0,25.27,31.97,27.14,5,2026-09-08,2026-09-11,sravanth_logs/NAS_LONGBENCH_MULTI_DOCUMENT_QA_B128_adakv_08_09_2026.log sravanth_logs/NAS_LONGBENCH_MULTI_DOCUMENT_QA_B128_adakv_09_09_2026.log sravanth_logs/NAS_LONGBENCH_MULTI_DOCUMENT_QA_B128_adakv_09_09_2026_r3.log sravanth_logs/NAS_LONGBENCH_MULTI_DOCUMENT_QA_B128_adakv_09_09_2026_r4.log sravanth_logs/NAS_LONGBENCH_MULTI_DOCUMENT_QA_B128_adakv_10_09_2026_r5_gpu3.log
+Stage 4,LongBench,Multi-Doc QA B256,1000,936,1000,314.7,87.41,87.41,104.58,1,2026-09-10,2026-09-15,sravanth_logs/NAS_LONGBENCH_MULTI_DOCUMENT_QA_B256_adakv_10_09_2026.log
+Stage 4,LongBench,Multi-Doc QA B512,212,148,212,308.7,18.18,18.18,20.89,1,2026-09-15,2026-09-16,sravanth_logs/NAS_LONGBENCH_MULTI_DOCUMENT_QA_B512_adakv_15_09_2026.log
+Stage 4,LongBench,Code B128,97,33,97,966.3,26.04,26.04,26.64,1,2026-09-15,2026-09-16,sravanth_logs/NAS_LONGBENCH_CODE_B128_adakv_15_09_2026.log
+Stage 4,LongBench,Code B256,359,295,357,977.8,97.51,96.97,102.92,3,2026-09-16,2026-09-21,sravanth_logs/NAS_LONGBENCH_CODE_B256_adakv_16_09_2026.log sravanth_logs/NAS_LONGBENCH_CODE_B256_adakv_17_09_2026_resume.log sravanth_logs/NAS_LONGBENCH_CODE_B256_adakv_18_09_2026_resume2.log
+Stage 4,LongBench,Code B512,307,243,306,882.2,75.24,74.99,79.69,1,2026-09-18,2026-09-21,sravanth_logs/NAS_LONGBENCH_CODE_B512_adakv_18_09_2026.log
+Stage 4,RULER,RULER B128,204,140,202,1577.1,89.37,88.5,91.94,1,2026-08-27,2026-08-31,sravanth_logs/NAS_RULER_B128_adakv_27_08_2026.log
+Stage 4,RULER,RULER B256,108,44,134,1609.6,48.29,59.91,49.09,5,2026-08-27,2026-09-02,sravanth_logs/NAS_RULER_B256_adakv_27_08_2026.log sravanth_logs/NAS_RULER_B256_adakv_restart2_28_08_2026.log sravanth_logs/NAS_RULER_B256_adakv_restart_28_08_2026.log sravanth_logs/NAS_RULER_B256_adakv_restart_gpu1_28_08_2026.log sravanth_logs/NAS_RULER_B256_adakv_resume_28_08_2026.log
+Stage 4,RULER,RULER B512,206,142,204,1572.3,89.97,89.1,92.57,1,2026-08-27,2026-08-31,sravanth_logs/NAS_RULER_B512_adakv_27_08_2026.log
+Stage 4,RULER,RULER B1024,256,192,255,1586.4,112.81,112.37,116.33,2,2026-08-22,2026-08-31,sravanth_logs/NAS_RULER_B1024_adakv_22_08_2026.log sravanth_logs/NAS_RULER_B1024_adakv_restart_26_08_2026.log
+Stage 4,RULER,RULER B1536,199,135,198,1510.4,83.49,83.07,85.97,1,2026-08-22,2026-08-25,sravanth_logs/NAS_RULER_B1536_adakv_22_08_2026.log
+Stage 4,RULER,RULER B2048,194,130,194,1544.9,83.25,83.25,85.64,1,2026-08-22,2026-08-25,sravanth_logs/NAS_RULER_B2048_adakv_22_08_2026.log

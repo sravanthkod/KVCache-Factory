@@ -1,0 +1,58 @@
+% Calibration fidelity per Stage 4 cell (Appendix B): (a) Kendall tau, (b) regret; one dot per cell.
+% Data: python3 ../make_appendix.py writes data/calib_{LongBench,RULER,median}.dat and data/calib_picks.tex
+\documentclass[border=2pt]{standalone}
+\usepackage[scaled=0.92]{helvet}
+\renewcommand\familydefault{\sfdefault}
+\usepackage[T1]{fontenc}
+\usepackage{sansmath}
+\sansmath
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots}
+\usetikzlibrary{calc}
+\pgfplotsset{compat=1.17}
+\definecolor{chartlight}{HTML}{8FA6BC}
+\definecolor{chartdark}{HTML}{1F4E79}
+\definecolor{ink}{HTML}{2B2B2B}
+\pgfplotsset{
+  cal/.style={scale only axis, width=5.9cm, height=3.3cm, xmin=0.5, xmax=4.5,
+    xtick={1,2,3,4}, xticklabels={SnapKV,H2O,AdaKV,L2Norm},
+    x tick label style={font=\scriptsize, text=ink!85},
+    y tick label style={font=\scriptsize, text=ink!85}, tick align=outside, major tick length=2pt,
+    tick style={black!45, line width=0.4pt}, axis line style={black!35, line width=0.4pt},
+    axis x line*=bottom, axis y line*=left, ymajorgrids, grid style={black!9, line width=0.3pt},
+    title style={font=\small\bfseries, text=ink, yshift=-3pt}, ylabel style={font=\scriptsize, text=ink, yshift=-2pt},
+    clip=false},
+  lb/.style={only marks, mark=*, mark size=1.7pt, mark options={fill=chartdark, draw=white, line width=0.3pt}},
+  ru/.style={only marks, mark=triangle*, mark size=2.1pt, mark options={fill=chartlight, draw=chartdark, line width=0.35pt}},
+  med/.style={only marks, mark=-, mark size=7pt, mark options={line width=1.3pt, draw=ink}},
+}
+\tikzset{pick/.style={font=\tiny, text=ink!80, inner sep=0pt}}
+\begin{document}
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=2 by 2, horizontal sep=1.5cm, vertical sep=1.25cm}]
+  \nextgroupplot[cal, title={(a) Stage 4: ranking agreement}, ylabel={Kendall's $\tau$}, ymin=-1.05, ymax=1.05, ytick={-1,-0.5,0,0.5,1},
+    legend style={font=\scriptsize, draw=none, fill=none, legend columns=2, column sep=10pt}, legend to name=calleg]
+    \draw[black!45, densely dashed, line width=0.5pt] (axis cs:0.5,0) -- (axis cs:4.5,0);
+    \addplot[lb] table[x=x, y=tau] {data/calib_LongBench.dat}; \addlegendentry{LongBench}
+    \addplot[ru] table[x=x, y=tau] {data/calib_RULER.dat}; \addlegendentry{RULER}
+    \addplot[med, forget plot] table[x=x, y=tau] {data/calib_median.dat};
+  \nextgroupplot[cal, title={(b) Stage 4: selection regret}, ylabel={full-data points lost}, ymin=0, ymax=2.7]
+    \addplot[lb] table[x=x, y=regret] {data/calib_LongBench.dat};
+    \addplot[ru] table[x=x, y=regret] {data/calib_RULER.dat};
+    \addplot[med] table[x=x, y=regret] {data/calib_median.dat};
+  \nextgroupplot[cal, title={(c) Stage 1 fronts vs.\ Stage 2: ranking agreement}, ylabel={Kendall's $\tau$}, ymin=-1.05, ymax=1.05, ytick={-1,-0.5,0,0.5,1}]
+    \draw[black!45, densely dashed, line width=0.5pt] (axis cs:0.5,0) -- (axis cs:4.5,0);
+    \addplot[lb] table[x=x, y=tau] {data/calib_s2_tau_LongBench.dat};
+    \addplot[ru] table[x=x, y=tau] {data/calib_s2_tau_RULER.dat};
+    \addplot[med] table[x=x, y=tau] {data/calib_s2_tau_median.dat};
+    \node[font=\tiny, text=ink!70, align=center] at (axis cs:3,-0.55) {no Stage 1\\archive};
+    \node[font=\tiny, text=ink!70, align=center] at (axis cs:4,-0.55) {not\\verified};
+  \nextgroupplot[cal, title={(d) Stage 1 fronts vs.\ Stage 2: selection regret}, ylabel={full-data points lost}, ymin=0, ymax=2.7]
+    \addplot[lb] table[x=x, y=regret] {data/calib_s2_reg_LongBench.dat};
+    \addplot[ru] table[x=x, y=regret] {data/calib_s2_reg_RULER.dat};
+    \addplot[med] table[x=x, y=regret] {data/calib_s2_reg_median.dat};
+    \node[font=\tiny, text=ink!70, align=center] at (axis cs:4,1.2) {not\\verified};
+\end{groupplot}
+\node[anchor=north] at ($(group c1r2.south)!0.5!(group c2r2.south)+(0,-0.45)$) {\pgfplotslegendfromname{calleg}};
+\end{tikzpicture}
+\end{document}

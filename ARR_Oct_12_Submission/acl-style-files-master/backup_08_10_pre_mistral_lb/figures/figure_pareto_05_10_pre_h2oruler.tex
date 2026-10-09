@@ -1,0 +1,109 @@
+% Pareto figure (small multiples): rows = eviction method, columns = task.
+% Data: python3 ../make_pareto_data.py ; build: pdflatex figure_pareto.tex   (previous design: figure_pareto_v1.tex)
+\documentclass[border=2pt]{standalone}
+\usepackage[scaled=0.92]{helvet}
+\renewcommand\familydefault{\sfdefault}
+\usepackage[T1]{fontenc}
+\usepackage{sansmath}
+\sansmath
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots}
+\usetikzlibrary{calc}
+\pgfplotsset{compat=1.17}
+
+\definecolor{csnapkv}{HTML}{1F4E79}
+\definecolor{ch2o}{HTML}{5E8FB4}
+\definecolor{cadakv}{HTML}{D9822B}
+\definecolor{cl2norm}{HTML}{4E8F6B}
+\definecolor{cuni}{HTML}{6E6E6E}
+\definecolor{ink}{HTML}{2B2B2B}
+
+\pgfplotsset{
+  pan/.style={scale only axis, width=2.5cm, height=1.42cm,
+    xmode=log, log basis x=2, log ticks with fixed point,
+    xtick={64,256,1024,4096}, xticklabels={64,256,1k,4k}, xmin=52, xmax=5000,
+    max space between ticks=16, yticklabel style={/pgf/number format/fixed, /pgf/number format/precision=0},
+    tick label style={font=\tiny, text=ink!85}, tick align=outside, major tick length=2pt,
+    tick style={black!45, line width=0.4pt},
+    axis line style={black!35, line width=0.4pt}, axis x line*=bottom, axis y line*=left,
+    grid=major, grid style={black!9, line width=0.3pt},
+    title style={font=\scriptsize\bfseries, text=ink, yshift=-4pt},
+    clip marker paths=true},
+  uni/.style={cuni, densely dashed, line width=0.75pt, mark=square*, mark size=0.9pt,
+    mark options={solid, fill=white, draw=cuni, line width=0.5pt}},
+  nas/.style={only marks, mark=*, mark size=1.15pt, draw=white, line width=0.25pt, fill=#1, fill opacity=0.9},
+  win/.style={only marks, mark=o, mark size=2.6pt, draw=#1, line width=0.9pt},
+  rowlab/.style={ylabel style={font=\scriptsize\bfseries, text=#1, yshift=-1pt}},
+}
+% \panel{CATEGORY}{method}
+\newcommand{\panel}[2]{%
+  \addplot[uni] table[x=budget, y=score] {data/pareto_#1_#2_uni.dat};
+  \addplot[nas=c#2] table[x=budget, y=score] {data/pareto_#1_#2_nas.dat};
+  \addplot[win=c#2] table[x=budget, y=score] {data/pareto_#1_#2_best.dat};}
+% placeholder for (task, method) pairs without a Stage 2 evaluation
+\newcommand{\missing}[1]{%
+  \addplot[draw=none] coordinates {(700,0) (4096,1)};
+  \node[font=\tiny, text=black!45, align=center] at (rel axis cs:0.5,0.5) {#1};}
+
+\begin{document}
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=5 by 4, horizontal sep=0.48cm, vertical sep=0.28cm,
+    xticklabels at=edge bottom}, pan]
+  % ---------------- SnapKV ----------------
+  \nextgroupplot[title={Single-Doc QA}, ylabel={SnapKV}, rowlab=csnapkv]
+    \panel{SINGLE_DOCUMENT_QA}{snapkv}
+  \nextgroupplot[title={Multi-Doc QA}]
+    \panel{MULTI_DOCUMENT_QA}{snapkv}
+  \nextgroupplot[title={Code}]
+    \panel{CODE}{snapkv}
+  \nextgroupplot[title={Summarization}]
+    \panel{SUMMARIZATION}{snapkv}
+  \nextgroupplot[title={RULER}, xmin=640, xmax=4600, xtick={1024,2048,4096}, xticklabels={}]
+    \panel{RULER_ALL}{snapkv}
+  % ---------------- H2O ----------------
+  \nextgroupplot[ylabel={H2O}, rowlab=ch2o]
+    \panel{SINGLE_DOCUMENT_QA}{h2o}
+  \nextgroupplot[]
+    \panel{MULTI_DOCUMENT_QA}{h2o}
+  \nextgroupplot[]
+    \panel{CODE}{h2o}
+  \nextgroupplot[]
+    \panel{SUMMARIZATION}{h2o}
+  \nextgroupplot[ytick=\empty, grid=none, axis line style={black!15}, xmin=640, xmax=4600, xtick={1024,2048,4096}, xticklabels={}]
+    \missing{no full-data\\Stage 2 eval}
+  % ---------------- AdaKV ----------------
+  \nextgroupplot[ylabel={AdaKV}, rowlab=cadakv]
+    \panel{SINGLE_DOCUMENT_QA}{adakv}
+  \nextgroupplot[]
+    \panel{MULTI_DOCUMENT_QA}{adakv}
+  \nextgroupplot[]
+    \panel{CODE}{adakv}
+  \nextgroupplot[ytick=\empty, grid=none, axis line style={black!15}]
+    \missing{still\\running}
+  \nextgroupplot[xmin=640, xmax=4600, xtick={1024,2048,4096}, xticklabels={}]
+    \panel{RULER_ALL}{adakv}
+  % ---------------- L2Norm ----------------
+  \nextgroupplot[ylabel={L2Norm}, rowlab=cl2norm]
+    \panel{SINGLE_DOCUMENT_QA}{l2norm}
+  \nextgroupplot[]
+    \panel{MULTI_DOCUMENT_QA}{l2norm}
+  \nextgroupplot[]
+    \panel{CODE}{l2norm}
+  \nextgroupplot[]
+    \panel{SUMMARIZATION}{l2norm}
+  \nextgroupplot[xmin=640, xmax=4600, xtick={1024,2048,4096}, xticklabels={1k,2k,4k}]
+    \panel{RULER_ALL}{l2norm}
+\end{groupplot}
+
+% legend (neutral colour; the row label gives the method colour)
+\node[font=\scriptsize, text=ink, anchor=south, inner sep=0pt] at ($(group c3r1.north)+(0,0.5)$) {%
+  \tikz[baseline=-0.6ex]{\draw[cuni, densely dashed, line width=0.75pt] (0,0) -- (0.55,0);
+    \draw[cuni, fill=white, line width=0.5pt] (0.24,-0.035) rectangle ++(0.07,0.07);}~uniform allocation\hspace{14pt}%
+  \tikz[baseline=-0.6ex]{\fill[black!60] (0,0) circle (1.15pt);}~Stage 2 configuration (full data)\hspace{14pt}%
+  \tikz[baseline=-0.6ex]{\draw[black!70, line width=0.9pt] (0,0) circle (2.6pt);}~winner carried to Stages 3--4};
+\node[font=\scriptsize, text=black!65, anchor=north] at ($(group c3r4.south)+(0,-0.3)$)
+  {average per-layer KV budget (tokens, log scale)};
+\node[font=\scriptsize, text=black!65, rotate=90, anchor=south] at ($($(group c1r2.west)!0.5!(group c1r3.west)$)+(-0.98,0)$)
+  {full-data score};
+\end{tikzpicture}
+\end{document}

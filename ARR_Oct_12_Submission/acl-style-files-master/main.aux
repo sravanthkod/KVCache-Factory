@@ -1,0 +1,1283 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\bibstyle{acl_natbib}
+\providecommand\HyperFirstAtBeginDocument{\AtBeginDocument}
+\HyperFirstAtBeginDocument{\ifx\hyper@anchor\@undefined
+\global\let\oldcontentsline\contentsline
+\gdef\contentsline#1#2#3#4{\oldcontentsline{#1}{#2}{#3}}
+\global\let\oldnewlabel\newlabel
+\gdef\newlabel#1#2{\newlabelxx{#1}#2}
+\gdef\newlabelxx#1#2#3#4#5#6{\oldnewlabel{#1}{{#2}{#3}}}
+\AtEndDocument{\ifx\hyper@anchor\@undefined
+\let\contentsline\oldcontentsline
+\let\newlabel\oldnewlabel
+\fi}
+\fi}
+\global\let\hyper@last\relax 
+\gdef\HyperFirstAtBeginDocument#1{#1}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\citation{kwon2023pagedattention}
+\citation{zhang2023h2o}
+\citation{zhang2023h2o}
+\citation{li2024snapkv}
+\citation{devoto2024l2norm}
+\citation{feng2025adakv}
+\citation{cai2025pyramidkv}
+\citation{qin2025cake}
+\citation{yu2025evolkv}
+\citation{frantar2023gptq,xiao2023smoothquant}
+\@LN@col{1}
+\@LN{0}{0}
+\@LN{1}{0}
+\@LN{2}{0}
+\@LN{3}{0}
+\@LN{4}{0}
+\@LN{5}{0}
+\@LN{6}{0}
+\@LN{7}{0}
+\@LN{8}{0}
+\@LN{9}{0}
+\@LN{10}{0}
+\@LN{11}{0}
+\@LN{12}{0}
+\@LN{13}{0}
+\@LN{14}{0}
+\@LN{15}{0}
+\@LN{16}{0}
+\@LN{17}{0}
+\@LN{18}{0}
+\@LN{19}{0}
+\@LN{20}{0}
+\@LN{21}{0}
+\@LN{22}{0}
+\@LN{23}{0}
+\@LN{24}{0}
+\@LN{25}{0}
+\@LN{26}{0}
+\@LN{27}{0}
+\@LN{28}{0}
+\@LN{29}{0}
+\@LN{30}{0}
+\@LN{31}{0}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\@LN{32}{0}
+\@LN{33}{0}
+\@LN{34}{0}
+\@LN{35}{0}
+\@LN{36}{0}
+\@LN{37}{0}
+\@LN{38}{0}
+\@LN{39}{0}
+\@LN{40}{0}
+\@LN{41}{0}
+\@LN@col{2}
+\@LN{42}{0}
+\@LN{43}{0}
+\@LN{44}{0}
+\@LN{45}{0}
+\@LN{46}{0}
+\@LN{47}{0}
+\@LN{48}{0}
+\@LN{49}{0}
+\@LN{50}{0}
+\@LN{51}{0}
+\@LN{52}{0}
+\@LN{53}{0}
+\@LN{54}{0}
+\@LN{55}{0}
+\@LN{56}{0}
+\@LN{57}{0}
+\@LN{58}{0}
+\@LN{59}{0}
+\@LN{60}{0}
+\@LN{61}{0}
+\@LN{62}{0}
+\@LN{63}{0}
+\@LN{64}{0}
+\@LN{65}{0}
+\@LN{66}{0}
+\@LN{67}{0}
+\@LN{68}{0}
+\@LN{69}{0}
+\@LN{70}{0}
+\@LN{71}{0}
+\@LN{72}{0}
+\@LN{73}{0}
+\@LN{74}{0}
+\@LN{75}{0}
+\@LN{76}{0}
+\@LN{77}{0}
+\@LN{78}{0}
+\@LN{79}{0}
+\@LN{80}{0}
+\@LN{81}{0}
+\@LN{82}{0}
+\citation{yu2025evolkv}
+\citation{hansen2001cmaes}
+\citation{zhang2023h2o}
+\citation{xiao2024streamingllm}
+\citation{liu2023scissorhands}
+\citation{ge2024fastgen}
+\citation{li2024snapkv}
+\citation{devoto2024l2norm}
+\citation{park2025keydiff}
+\citation{dao2024flashattention2}
+\citation{jones2026quoka}
+\citation{feng2025adakv}
+\citation{qin2025cake}
+\citation{wang2025squeezeattention}
+\citation{cai2025pyramidkv}
+\citation{yang2024pyramidinfer}
+\citation{fu2025headkv}
+\citation{xiao2025duoattention}
+\citation{yu2025evolkv}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces \textbf  {The MOSAIC pipeline.} Stages 1--3 run once per (task, eviction policy): an unconstrained search on a calibration subset yields a Pareto front of per-layer allocations, full-data re-evaluation selects a winner, and the winner is rescaled to every target budget without further search. Stage 4 optionally refines each budget with constrained BO seeded by the rescaled winner. Bar profiles are schematic.\relax }}{2}{figure.caption.1}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:method}{{1}{2}{\textbf {The MOSAIC pipeline.} Stages 1--3 run once per (task, eviction policy): an unconstrained search on a calibration subset yields a Pareto front of per-layer allocations, full-data re-evaluation selects a winner, and the winner is rescaled to every target budget without further search. Stage 4 optionally refines each budget with constrained BO seeded by the rescaled winner. Bar profiles are schematic.\relax }{figure.caption.1}{}}
+\@LN@col{1}
+\@LN{83}{1}
+\@LN{84}{1}
+\@LN{85}{1}
+\@LN{86}{1}
+\@LN{87}{1}
+\@LN{88}{1}
+\@LN{89}{1}
+\@LN{90}{1}
+\@LN{91}{1}
+\@LN{92}{1}
+\newlabel{sec:intro-evolkv}{{1}{2}{Introduction}{figure.caption.1}{}}
+\@LN{93}{1}
+\@LN{94}{1}
+\@LN{95}{1}
+\@LN{96}{1}
+\@LN{97}{1}
+\@LN{98}{1}
+\@LN{99}{1}
+\@LN{100}{1}
+\@LN{101}{1}
+\@LN{102}{1}
+\@LN{103}{1}
+\@LN{104}{1}
+\@LN{105}{1}
+\@LN{106}{1}
+\@LN{107}{1}
+\@LN{108}{1}
+\@LN{109}{1}
+\@LN{110}{1}
+\@LN{111}{1}
+\@LN{112}{1}
+\@LN{113}{1}
+\@LN{114}{1}
+\@LN{115}{1}
+\@LN{116}{1}
+\@LN@col{2}
+\@LN{117}{1}
+\@LN{118}{1}
+\@LN{119}{1}
+\@LN{120}{1}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Related Work}{2}{section.2}\protected@file@percent }
+\@LN{121}{1}
+\@LN{122}{1}
+\@LN{123}{1}
+\@LN{124}{1}
+\@LN{125}{1}
+\@LN{126}{1}
+\@LN{127}{1}
+\@LN{128}{1}
+\@LN{129}{1}
+\@LN{130}{1}
+\@LN{131}{1}
+\@LN{132}{1}
+\@LN{133}{1}
+\@LN{134}{1}
+\@LN{135}{1}
+\@LN{136}{1}
+\@LN{137}{1}
+\@LN{138}{1}
+\@LN{139}{1}
+\@LN{140}{1}
+\@LN{141}{1}
+\@LN{142}{1}
+\@LN{143}{1}
+\@LN{144}{1}
+\@LN{145}{1}
+\@LN{146}{1}
+\@LN{147}{1}
+\@LN{148}{1}
+\@LN{149}{1}
+\citation{elsken2018neural}
+\citation{tiao2021bore}
+\citation{deb2002nsga2}
+\citation{storn1997differential}
+\@LN@col{1}
+\@LN{150}{2}
+\@LN{151}{2}
+\@LN{152}{2}
+\@LN{153}{2}
+\@LN{154}{2}
+\@LN{155}{2}
+\@LN{156}{2}
+\@LN{157}{2}
+\@LN{158}{2}
+\@LN{159}{2}
+\@LN{160}{2}
+\@LN{161}{2}
+\@LN{162}{2}
+\@LN{163}{2}
+\@LN{164}{2}
+\@LN{165}{2}
+\@LN{166}{2}
+\@LN{167}{2}
+\@LN{168}{2}
+\@LN{169}{2}
+\@LN{170}{2}
+\@LN{171}{2}
+\@LN{172}{2}
+\@LN{173}{2}
+\@LN{174}{2}
+\@LN{175}{2}
+\@LN{176}{2}
+\@LN{177}{2}
+\@LN{178}{2}
+\@LN{179}{2}
+\@LN{180}{2}
+\@LN{181}{2}
+\@LN{182}{2}
+\@LN{183}{2}
+\@LN{184}{2}
+\@LN{185}{2}
+\@LN{186}{2}
+\@LN{187}{2}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Method}{3}{section.3}\protected@file@percent }
+\newlabel{sec:method}{{3}{3}{Method}{section.3}{}}
+\@LN{188}{2}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Problem Formulation}{3}{subsection.3.1}\protected@file@percent }
+\newlabel{sec:formulation}{{3.1}{3}{Problem Formulation}{subsection.3.1}{}}
+\@LN{189}{2}
+\@LN{190}{2}
+\@LN{191}{2}
+\@LN{192}{2}
+\@LN{193}{2}
+\@LN{194}{2}
+\@LN{195}{2}
+\@LN{196}{2}
+\@LN{197}{2}
+\@LN{198}{2}
+\@LN{199}{2}
+\@LN@col{2}
+\@LN{200}{2}
+\@LN{201}{2}
+\@LN{202}{2}
+\@LN{203}{2}
+\@LN{204}{2}
+\@LN{205}{2}
+\@LN{206}{2}
+\@LN{207}{2}
+\@LN{208}{2}
+\@LN{209}{2}
+\@LN{210}{2}
+\@LN{211}{2}
+\@LN{212}{2}
+\@LN{213}{2}
+\@LN{214}{2}
+\@LN{215}{2}
+\@LN{216}{2}
+\@LN{217}{2}
+\@LN{218}{2}
+\@LN{219}{2}
+\@LN{220}{2}
+\@LN{221}{2}
+\@LN{222}{2}
+\@LN{223}{2}
+\@LN{224}{2}
+\@LN{225}{2}
+\@LN{226}{2}
+\@LN{227}{2}
+\@LN{228}{2}
+\@LN{229}{2}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Search Procedure (MOSAIC — Four-Stage Pipeline)}{3}{subsection.3.2}\protected@file@percent }
+\@LN{230}{2}
+\@LN{231}{2}
+\@LN{232}{2}
+\@LN{233}{2}
+\@LN{234}{2}
+\@LN{235}{2}
+\@LN{236}{2}
+\@LN{237}{2}
+\@LN{238}{2}
+\@LN{239}{2}
+\@LN{240}{2}
+\newlabel{sec:method-tasks}{{3.2}{3}{Search Procedure (MOSAIC — Four-Stage Pipeline)}{subsection.3.2}{}}
+\@LN{241}{2}
+\@LN{242}{2}
+\@LN{243}{2}
+\@LN{244}{2}
+\@LN{245}{2}
+\@LN{246}{2}
+\@LN{247}{2}
+\@LN{248}{2}
+\@LN{249}{2}
+\@LN{250}{2}
+\citation{mckay1979comparison}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces \textbf  {Budget--score trade-off found by the unconstrained search (full data).} Rows: eviction method; columns: task. Dashed: uniform allocation. Dots: configurations on the Stage 1 Pareto front, re-evaluated on full data in Stage 2. Ring: the winner carried to Stages 3 and 4.\relax }}{4}{figure.caption.2}\protected@file@percent }
+\newlabel{fig:pareto}{{2}{4}{\textbf {Budget--score trade-off found by the unconstrained search (full data).} Rows: eviction method; columns: task. Dashed: uniform allocation. Dots: configurations on the Stage 1 Pareto front, re-evaluated on full data in Stage 2. Ring: the winner carried to Stages 3 and 4.\relax }{figure.caption.2}{}}
+\@LN@col{1}
+\@LN{251}{3}
+\@LN{252}{3}
+\@LN{253}{3}
+\@LN{254}{3}
+\@LN{255}{3}
+\@LN{256}{3}
+\@LN{257}{3}
+\@LN{258}{3}
+\@LN{259}{3}
+\@LN{260}{3}
+\@LN{261}{3}
+\@LN{262}{3}
+\@LN{263}{3}
+\@LN{264}{3}
+\@LN{265}{3}
+\@LN{266}{3}
+\@LN{267}{3}
+\@LN{268}{3}
+\@LN{269}{3}
+\@LN{270}{3}
+\@LN{271}{3}
+\@LN{272}{3}
+\@LN{273}{3}
+\@LN{274}{3}
+\@LN{275}{3}
+\@LN{276}{3}
+\@LN{277}{3}
+\@LN{278}{3}
+\@LN{279}{3}
+\@LN{280}{3}
+\@LN{281}{3}
+\@LN@col{2}
+\@LN{282}{3}
+\@LN{283}{3}
+\@LN{284}{3}
+\@LN{285}{3}
+\@LN{286}{3}
+\@LN{287}{3}
+\@LN{288}{3}
+\@LN{289}{3}
+\@LN{290}{3}
+\@LN{291}{3}
+\@LN{292}{3}
+\@LN{293}{3}
+\@LN{294}{3}
+\@LN{295}{3}
+\@LN{296}{3}
+\@LN{297}{3}
+\@LN{298}{3}
+\@LN{299}{3}
+\@LN{300}{3}
+\@LN{301}{3}
+\@LN{302}{3}
+\@LN{303}{3}
+\@LN{304}{3}
+\@LN{305}{3}
+\@LN{306}{3}
+\@LN{307}{3}
+\@LN{308}{3}
+\@LN{309}{3}
+\@LN{310}{3}
+\@LN{311}{3}
+\@LN{312}{3}
+\citation{grattafiori2024llama3}
+\citation{jiang2023mistral}
+\citation{bai2024longbench}
+\citation{hsieh2024ruler}
+\@LN@col{1}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces \textbf  {One search, many budgets.} Stage 3: the Stage 2 winner, found once at its natural average budget and rescaled to every target budget with no further search. Stage 4: NAS-refined, the best configuration of the budget-constrained search, available only at budgets where it ran. MOSAIC: its final configuration, the better of Winner and NAS-refined (chosen per budget), at the same budgets as Stage 4. Wins: budgets where the configuration beats uniform on full data; $\Delta $: mean gain over uniform. Llama-3-8B-Instruct; Mistral-7B-Instruct-v0.2 is in Table\nobreakspace  {}\ref  {tab:app-stages-mistral}.\relax }}{5}{table.caption.3}\protected@file@percent }
+\newlabel{tab:transfer}{{1}{5}{\textbf {One search, many budgets.} Stage 3: the Stage 2 winner, found once at its natural average budget and rescaled to every target budget with no further search. Stage 4: NAS-refined, the best configuration of the budget-constrained search, available only at budgets where it ran. MOSAIC: its final configuration, the better of Winner and NAS-refined (chosen per budget), at the same budgets as Stage 4. Wins: budgets where the configuration beats uniform on full data; $\Delta $: mean gain over uniform. Llama-3-8B-Instruct; Mistral-7B-Instruct-v0.2 is in Table~\ref {tab:app-stages-mistral}.\relax }{table.caption.3}{}}
+\@LN{313}{4}
+\@LN{314}{4}
+\@LN{315}{4}
+\@LN{316}{4}
+\@LN{317}{4}
+\@LN{318}{4}
+\@LN{319}{4}
+\@LN{320}{4}
+\@LN{321}{4}
+\@LN{322}{4}
+\@LN{323}{4}
+\@LN{324}{4}
+\@LN{325}{4}
+\@LN{326}{4}
+\@LN{327}{4}
+\@LN{328}{4}
+\@LN{329}{4}
+\@LN{330}{4}
+\@LN{331}{4}
+\@LN{332}{4}
+\@LN{333}{4}
+\@LN{334}{4}
+\@LN{335}{4}
+\@LN{336}{4}
+\@LN@col{2}
+\@LN{337}{4}
+\@LN{338}{4}
+\@LN{339}{4}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Experiments}{5}{section.4}\protected@file@percent }
+\@LN{340}{4}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Setup}{5}{subsection.4.1}\protected@file@percent }
+\@LN{341}{4}
+\@LN{342}{4}
+\@LN{343}{4}
+\@LN{344}{4}
+\@LN{345}{4}
+\@LN{346}{4}
+\@LN{347}{4}
+\@LN{348}{4}
+\@LN{349}{4}
+\@LN{350}{4}
+\@LN{351}{4}
+\@LN{352}{4}
+\@LN{353}{4}
+\@LN{354}{4}
+\@LN{355}{4}
+\@LN{356}{4}
+\@LN{357}{4}
+\@LN{358}{4}
+\@LN{359}{4}
+\@LN{360}{4}
+\@LN{361}{4}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Key Findings — LongBench}{5}{subsection.4.2}\protected@file@percent }
+\newlabel{sec:which-stage}{{4.2}{5}{Key Findings — LongBench}{subsection.4.2}{}}
+\@LN{362}{4}
+\@LN{363}{4}
+\@LN{364}{4}
+\@LN{365}{4}
+\@LN{366}{4}
+\@LN{367}{4}
+\@LN{368}{4}
+\@LN{369}{4}
+\@LN{370}{4}
+\@LN{371}{4}
+\@LN{372}{4}
+\@LN{373}{4}
+\@LN{374}{4}
+\@LN{375}{4}
+\@LN{376}{4}
+\@LN{377}{4}
+\@LN{378}{4}
+\@LN{379}{4}
+\@LN{380}{4}
+\@LN{381}{4}
+\@LN{382}{4}
+\@LN{383}{4}
+\@LN{384}{4}
+\@LN{385}{4}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces \textbf  {Learned per-layer allocations, SnapKV and H2O.} \textit  {(a)} Stage 2 winners at their natural average budget (left). \textit  {(b)} MOSAIC's final configuration for every cell (the better of Winner and NAS-refined), with the target budget on the left and a marker on the right for which of the two it is. \textit  {(c)} For each layer, the share of the 48 allocations in (a) and (b) that give it more than its uniform share; navy bars exceed 50\%. Colour: each layer's budget divided by the row mean, on a log$_2$ scale (blue: more than the uniform share; red: less).\relax }}{6}{figure.caption.4}\protected@file@percent }
+\newlabel{fig:heatmap}{{3}{6}{\textbf {Learned per-layer allocations, SnapKV and H2O.} \textit {(a)} Stage 2 winners at their natural average budget (left). \textit {(b)} MOSAIC's final configuration for every cell (the better of Winner and NAS-refined), with the target budget on the left and a marker on the right for which of the two it is. \textit {(c)} For each layer, the share of the 48 allocations in (a) and (b) that give it more than its uniform share; navy bars exceed 50\%. Colour: each layer's budget divided by the row mean, on a log$_2$ scale (blue: more than the uniform share; red: less).\relax }{figure.caption.4}{}}
+\@LN@col{1}
+\@LN{386}{5}
+\@LN{387}{5}
+\@LN{388}{5}
+\@LN{389}{5}
+\@LN{390}{5}
+\@LN{391}{5}
+\@LN{392}{5}
+\@LN{393}{5}
+\@LN{394}{5}
+\@LN{395}{5}
+\@LN{396}{5}
+\@LN{397}{5}
+\@LN{398}{5}
+\@LN{399}{5}
+\@LN{400}{5}
+\@LN{401}{5}
+\@LN{402}{5}
+\@LN{403}{5}
+\@LN{404}{5}
+\@LN{405}{5}
+\@LN{406}{5}
+\@LN@col{2}
+\@LN{407}{5}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Key Findings — RULER}{6}{subsection.4.3}\protected@file@percent }
+\newlabel{sec:ruler}{{4.3}{6}{Key Findings — RULER}{subsection.4.3}{}}
+\@LN{408}{5}
+\@LN{409}{5}
+\@LN{410}{5}
+\@LN{411}{5}
+\@LN{412}{5}
+\@LN{413}{5}
+\@LN{414}{5}
+\@LN{415}{5}
+\@LN{416}{5}
+\@LN{417}{5}
+\@LN{418}{5}
+\@LN{419}{5}
+\@LN{420}{5}
+\@LN{421}{5}
+\@LN{422}{5}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Analysis}{6}{section.5}\protected@file@percent }
+\@LN{423}{5}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Shared Layer Structure}{6}{subsection.5.1}\protected@file@percent }
+\newlabel{sec:shared}{{5.1}{6}{Shared Layer Structure}{subsection.5.1}{}}
+\@LN{424}{5}
+\@LN{425}{5}
+\@LN{426}{5}
+\@LN{427}{5}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces \textbf  {LongBench results (full data).} Uniform allocation vs.\ MOSAIC's final configuration (the better of Winner and NAS-refined) at the same average per-layer budget $B$; each score is the mean of the category's datasets (official metrics); the better of the two is in bold. Llama-3-8B: Llama-3-8B-Instruct; Mistral-7B: Mistral-7B-Instruct-v0.2, whose SnapKV, H2O and AdaKV Summarization rows are uniform only (no budget search).\relax }}{7}{table.caption.5}\protected@file@percent }
+\newlabel{tab:main}{{2}{7}{\textbf {LongBench results (full data).} Uniform allocation vs.\ MOSAIC's final configuration (the better of Winner and NAS-refined) at the same average per-layer budget $B$; each score is the mean of the category's datasets (official metrics); the better of the two is in bold. Llama-3-8B: Llama-3-8B-Instruct; Mistral-7B: Mistral-7B-Instruct-v0.2, whose SnapKV, H2O and AdaKV Summarization rows are uniform only (no budget search).\relax }{table.caption.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces \textbf  {RULER results (full data, string-match accuracy averaged over 11 subtasks).} Uniform allocation vs.\ MOSAIC's final configuration (the better of Winner and NAS-refined) at the same average per-layer budget; the better is in bold. Llama-3-8B: Llama-3-8B-Instruct, of which SnapKV and H2O at B1024 and above used an earlier 3--4-candidate selection; Mistral-7B: Mistral-7B-Instruct-v0.2.\relax }}{7}{table.caption.6}\protected@file@percent }
+\newlabel{tab:ruler-summary}{{3}{7}{\textbf {RULER results (full data, string-match accuracy averaged over 11 subtasks).} Uniform allocation vs.\ MOSAIC's final configuration (the better of Winner and NAS-refined) at the same average per-layer budget; the better is in bold. Llama-3-8B: Llama-3-8B-Instruct, of which SnapKV and H2O at B1024 and above used an earlier 3--4-candidate selection; Mistral-7B: Mistral-7B-Instruct-v0.2.\relax }{table.caption.6}{}}
+\@LN@col{1}
+\@LN{428}{6}
+\@LN{429}{6}
+\@LN{430}{6}
+\@LN{431}{6}
+\@LN{432}{6}
+\@LN{433}{6}
+\@LN{434}{6}
+\@LN{435}{6}
+\@LN@col{2}
+\@LN{436}{6}
+\@LN{437}{6}
+\@LN{438}{6}
+\@LN{439}{6}
+\@LN{440}{6}
+\@LN{441}{6}
+\@LN{442}{6}
+\@LN{443}{6}
+\citation{yu2025evolkv}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces \textbf  {Uniform vs.\ Stage 3 and Stage 4 at every target budget (full data).} Rows: eviction method (Llama); columns: task. Stage 3: rescaled Stage 2 winner, no further search; Stage 4: NAS-refined, only at budgets where it ran.\relax }}{8}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:stages}{{4}{8}{\textbf {Uniform vs.\ Stage 3 and Stage 4 at every target budget (full data).} Rows: eviction method (Llama); columns: task. Stage 3: rescaled Stage 2 winner, no further search; Stage 4: NAS-refined, only at budgets where it ran.\relax }{figure.caption.7}{}}
+\@LN@col{1}
+\@LN{444}{7}
+\@LN{445}{7}
+\@LN{446}{7}
+\@LN{447}{7}
+\@LN{448}{7}
+\@LN{449}{7}
+\@LN{450}{7}
+\@LN{451}{7}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Task and Method Patterns}{8}{subsection.5.2}\protected@file@percent }
+\@LN{452}{7}
+\@LN{453}{7}
+\@LN{454}{7}
+\@LN{455}{7}
+\@LN{456}{7}
+\@LN{457}{7}
+\@LN{458}{7}
+\@LN{459}{7}
+\@LN{460}{7}
+\@LN{461}{7}
+\@LN{462}{7}
+\@LN{463}{7}
+\@LN{464}{7}
+\@LN{465}{7}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Comparison with EvolKV}{8}{section.6}\protected@file@percent }
+\newlabel{sec:evolkv}{{6}{8}{Comparison with EvolKV}{section.6}{}}
+\@LN{466}{7}
+\@LN{467}{7}
+\@LN{468}{7}
+\@LN{469}{7}
+\@LN{470}{7}
+\@LN{471}{7}
+\@LN{472}{7}
+\@LN{473}{7}
+\@LN{474}{7}
+\@LN{475}{7}
+\@LN{476}{7}
+\@LN{477}{7}
+\@LN@col{2}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces \textbf  {EvolKV vs.\ MOSAIC (SnapKV, full data).} Direct: an EvolKV search at each budget (none at B256). Expanded: EvolKV's main protocol, its B128 allocation rescaled. Winner: MOSAIC's Stage 2 winner, searched once and rescaled. MOSAIC (final): the better of Winner and NAS-refined. Bold: best in each column.\relax }}{8}{table.caption.8}\protected@file@percent }
+\newlabel{tab:ablation}{{4}{8}{\textbf {EvolKV vs.\ MOSAIC (SnapKV, full data).} Direct: an EvolKV search at each budget (none at B256). Expanded: EvolKV's main protocol, its B128 allocation rescaled. Winner: MOSAIC's Stage 2 winner, searched once and rescaled. MOSAIC (final): the better of Winner and NAS-refined. Bold: best in each column.\relax }{table.caption.8}{}}
+\@LN{478}{7}
+\@LN{479}{7}
+\@LN{480}{7}
+\@LN{481}{7}
+\@LN{482}{7}
+\@LN{483}{7}
+\@LN{484}{7}
+\@LN{485}{7}
+\@LN{486}{7}
+\@LN{487}{7}
+\@LN{488}{7}
+\@LN{489}{7}
+\@LN{490}{7}
+\@LN{491}{7}
+\@LN{492}{7}
+\@LN{493}{7}
+\@LN{494}{7}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Conclusion}{8}{section.7}\protected@file@percent }
+\@LN{495}{7}
+\@LN{496}{7}
+\@LN{497}{7}
+\@LN{498}{7}
+\citation{park2025keydiff}
+\citation{jones2026quoka}
+\bibdata{custom}
+\bibcite{bai2024longbench}{{1}{2024}{{Bai et~al.}}{{Bai, Lv, Zhang, Lyu, Tang, Huang, Du, Liu, Zeng, Hou, Dong, Tang, and Li}}}
+\bibcite{cai2020ofa}{{2}{2020}{{Cai et~al.}}{{Cai, Gan, Wang, Zhang, and Han}}}
+\bibcite{cai2025pyramidkv}{{3}{2025}{{Cai et~al.}}{{Cai, Zhang, Gao, Liu, Li, Liu, Lu, Xiong, Dong, Hu, and Xiao}}}
+\bibcite{dao2024flashattention2}{{4}{2024}{{Dao}}{{}}}
+\bibcite{deb2002nsga2}{{5}{2002}{{Deb et~al.}}{{Deb, Pratap, Agarwal, and Meyarivan}}}
+\bibcite{devoto2024l2norm}{{6}{2024}{{Devoto et~al.}}{{Devoto, Zhao, Scardapane, and Minervini}}}
+\bibcite{elsken2018neural}{{7}{2019}{{Elsken et~al.}}{{Elsken, Metzen, and Hutter}}}
+\bibcite{feng2025adakv}{{8}{2025}{{Feng et~al.}}{{Feng, Lv, Cao, Xie, and Zhou}}}
+\bibcite{frantar2023gptq}{{9}{2023}{{Frantar et~al.}}{{Frantar, Ashkboos, Hoefler, and Alistarh}}}
+\bibcite{fu2025headkv}{{10}{2025}{{Fu et~al.}}{{Fu, Cai, Asi, Xiong, Dong, and Xiao}}}
+\bibcite{ge2024fastgen}{{11}{2024}{{Ge et~al.}}{{Ge, Zhang, Liu, Zhang, Han, and Gao}}}
+\bibcite{grattafiori2024llama3}{{12}{2024}{{Grattafiori et~al.}}{{}}}
+\bibcite{hansen2001cmaes}{{13}{2001}{{Hansen and Ostermeier}}{{}}}
+\bibcite{hooper2024kvquant}{{14}{2024}{{Hooper et~al.}}{{Hooper, Kim, Mohammadzadeh, Mahoney, Shao, Keutzer, and Gholami}}}
+\bibcite{hsieh2024ruler}{{15}{2024}{{Hsieh et~al.}}{{Hsieh, Sun, Kriman, Acharya, Rekesh, Jia, Zhang, and Ginsburg}}}
+\bibcite{jiang2023mistral}{{16}{2023}{{Jiang et~al.}}{{Jiang, Sablayrolles, Mensch, Bamford, Chaplot, de~las Casas, Bressand, Lengyel, Lample, Saulnier, Lavaud, Lachaux, Stock, Scao, Lavril, Wang, Lacroix, and Sayed}}}
+\bibcite{jones2026quoka}{{17}{2026}{{Jones et~al.}}{{Jones, Park, Morse, Lee, Lott, and Langston}}}
+\bibcite{kwon2023pagedattention}{{18}{2023}{{Kwon et~al.}}{{Kwon, Li, Zhuang, Sheng, Zheng, Yu, Gonzalez, Zhang, and Stoica}}}
+\bibcite{li2024snapkv}{{19}{2024}{{Li et~al.}}{{Li, Huang, Yang, Venkitesh, Locatelli, Ye, Cai, Lewis, and Chen}}}
+\@LN@col{1}
+\@LN{499}{8}
+\@LN{500}{8}
+\@LN{501}{8}
+\@LN{502}{8}
+\@LN{503}{8}
+\@LN{504}{8}
+\@LN{505}{8}
+\@LN{506}{8}
+\@LN{507}{8}
+\@LN{508}{8}
+\@LN{509}{8}
+\@LN{510}{8}
+\@LN{511}{8}
+\@LN{512}{8}
+\@LN{513}{8}
+\@LN{514}{8}
+\@LN{515}{8}
+\@LN{516}{8}
+\@LN{517}{8}
+\@LN{518}{8}
+\@LN{519}{8}
+\@LN{520}{8}
+\@LN{521}{8}
+\@LN{522}{8}
+\@LN{523}{8}
+\@LN{524}{8}
+\@LN{525}{8}
+\@LN{526}{8}
+\@LN{527}{8}
+\@LN{528}{8}
+\@LN{529}{8}
+\@LN{530}{8}
+\@LN{531}{8}
+\@LN{532}{8}
+\@LN{533}{8}
+\@LN{534}{8}
+\@LN{535}{8}
+\@LN{536}{8}
+\@LN{537}{8}
+\@LN{538}{8}
+\@LN{539}{8}
+\@LN{540}{8}
+\@LN{541}{8}
+\@LN{542}{8}
+\@LN{543}{8}
+\@LN{544}{8}
+\@LN{545}{8}
+\@LN{546}{8}
+\@LN{547}{8}
+\@LN{548}{8}
+\@LN{549}{8}
+\@LN@col{2}
+\@LN{550}{8}
+\@LN{551}{8}
+\@LN{552}{8}
+\@LN{553}{8}
+\@LN{554}{8}
+\@LN{555}{8}
+\@LN{556}{8}
+\@LN{557}{8}
+\@LN{558}{8}
+\@LN{559}{8}
+\@LN{560}{8}
+\@LN{561}{8}
+\@LN{562}{8}
+\@LN{563}{8}
+\@LN{564}{8}
+\@LN{565}{8}
+\@LN{566}{8}
+\@LN{567}{8}
+\@LN{568}{8}
+\@LN{569}{8}
+\@LN{570}{8}
+\@LN{571}{8}
+\@LN{572}{8}
+\@LN{573}{8}
+\@LN{574}{8}
+\@LN{575}{8}
+\@LN{576}{8}
+\@LN{577}{8}
+\@LN{578}{8}
+\@LN{579}{8}
+\@LN{580}{8}
+\@LN{581}{8}
+\@LN{582}{8}
+\@LN{583}{8}
+\@LN{584}{8}
+\@LN{585}{8}
+\@LN{586}{8}
+\@LN{587}{8}
+\@LN{588}{8}
+\@LN{589}{8}
+\@LN{590}{8}
+\@LN{591}{8}
+\@LN{592}{8}
+\@LN{593}{8}
+\@LN{594}{8}
+\@LN{595}{8}
+\@LN{596}{8}
+\@LN{597}{8}
+\@LN{598}{8}
+\@LN{599}{8}
+\@LN{600}{8}
+\@LN{601}{8}
+\@LN{602}{8}
+\@LN{603}{8}
+\@LN{604}{8}
+\@LN{605}{8}
+\bibcite{liu2024minicache}{{20}{2024{a}}{{Liu et~al.}}{{Liu, Liu, Pan, He, Haffari, and Zhuang}}}
+\bibcite{liu2019darts}{{21}{2019}{{Liu et~al.}}{{Liu, Simonyan, and Yang}}}
+\bibcite{liu2023scissorhands}{{22}{2023}{{Liu et~al.}}{{Liu, Desai, Liao, Wang, Xie, Xu, Kyrillidis, and Shrivastava}}}
+\bibcite{liu2024kivi}{{23}{2024{b}}{{Liu et~al.}}{{Liu, Yuan, Jin, Zhong, Xu, Braverman, Chen, and Hu}}}
+\bibcite{mckay1979comparison}{{24}{1979}{{McKay et~al.}}{{McKay, Beckman, and Conover}}}
+\bibcite{park2025keydiff}{{25}{2025}{{Park et~al.}}{{Park, Jones, Morse, Goel, Lee, and Lott}}}
+\bibcite{qin2025cake}{{26}{2025}{{Qin et~al.}}{{Qin, Cao, Lin, Hu, Fan, Cheng, Lin, and Li}}}
+\bibcite{storn1997differential}{{27}{1997}{{Storn and Price}}{{}}}
+\bibcite{tang2024quest}{{28}{2024}{{Tang et~al.}}{{Tang, Zhao, Zhu, Xiao, Kasikci, and Han}}}
+\bibcite{tiao2021bore}{{29}{2021}{{Tiao et~al.}}{{Tiao, Klein, Seeger, Bonilla, Archambeau, and Ramos}}}
+\bibcite{wang2025squeezeattention}{{30}{2025}{{Wang et~al.}}{{Wang, Cui, and Gan}}}
+\bibcite{xiao2023smoothquant}{{31}{2023}{{Xiao et~al.}}{{Xiao, Lin, Seznec, Wu, Demouth, and Han}}}
+\bibcite{xiao2025duoattention}{{32}{2025}{{Xiao et~al.}}{{Xiao, Tang, Zuo, Guo, Yang, Tang, Fu, and Han}}}
+\bibcite{xiao2024streamingllm}{{33}{2024}{{Xiao et~al.}}{{Xiao, Tian, Chen, Han, and Lewis}}}
+\bibcite{yang2024pyramidinfer}{{34}{2024}{{Yang et~al.}}{{Yang, Han, Gao, Hu, Zhang, and Zhao}}}
+\bibcite{yu2025evolkv}{{35}{2025}{{Yu and Chai}}{{}}}
+\bibcite{zhang2023h2o}{{36}{2023}{{Zhang et~al.}}{{Zhang, Sheng, Zhou, Chen, Zheng, Cai, Song, Tian, R{\'e}, Barrett, Wang, and Chen}}}
+\@LN@col{1}
+\@LN{606}{9}
+\@LN{607}{9}
+\@LN{608}{9}
+\@LN{609}{9}
+\@LN{610}{9}
+\@LN{611}{9}
+\@LN{612}{9}
+\@LN{613}{9}
+\@LN{614}{9}
+\@LN{615}{9}
+\@LN{616}{9}
+\@LN{617}{9}
+\@LN{618}{9}
+\@LN{619}{9}
+\@LN{620}{9}
+\@LN{621}{9}
+\@LN{622}{9}
+\@LN{623}{9}
+\@LN{624}{9}
+\@LN{625}{9}
+\@LN{626}{9}
+\@LN{627}{9}
+\@LN{628}{9}
+\@LN{629}{9}
+\@LN{630}{9}
+\@LN{631}{9}
+\@LN{632}{9}
+\@LN{633}{9}
+\@LN{634}{9}
+\@LN{635}{9}
+\@LN{636}{9}
+\@LN{637}{9}
+\@LN{638}{9}
+\@LN{639}{9}
+\@LN{640}{9}
+\@LN{641}{9}
+\@LN{642}{9}
+\@LN{643}{9}
+\@LN{644}{9}
+\@LN{645}{9}
+\@LN{646}{9}
+\@LN{647}{9}
+\@LN{648}{9}
+\@LN{649}{9}
+\@LN{650}{9}
+\@LN{651}{9}
+\@LN{652}{9}
+\@LN{653}{9}
+\@LN{654}{9}
+\@LN{655}{9}
+\@LN{656}{9}
+\@LN{657}{9}
+\@LN{658}{9}
+\@LN{659}{9}
+\@LN{660}{9}
+\@LN{661}{9}
+\@LN@col{2}
+\@LN{662}{9}
+\@LN{663}{9}
+\@LN{664}{9}
+\@LN{665}{9}
+\@LN{666}{9}
+\@LN{667}{9}
+\@LN{668}{9}
+\@LN{669}{9}
+\@LN{670}{9}
+\@LN{671}{9}
+\@LN{672}{9}
+\@LN{673}{9}
+\@LN{674}{9}
+\@LN{675}{9}
+\@LN{676}{9}
+\@LN{677}{9}
+\@LN{678}{9}
+\@LN{679}{9}
+\@LN{680}{9}
+\@LN{681}{9}
+\@LN{682}{9}
+\@LN{683}{9}
+\@LN{684}{9}
+\@LN{685}{9}
+\@LN{686}{9}
+\@LN{687}{9}
+\@LN{688}{9}
+\@LN{689}{9}
+\@LN{690}{9}
+\@LN{691}{9}
+\@LN{692}{9}
+\@LN{693}{9}
+\@LN{694}{9}
+\@LN{695}{9}
+\@LN{696}{9}
+\@LN{697}{9}
+\@LN{698}{9}
+\@LN{699}{9}
+\@LN{700}{9}
+\@LN@col{1}
+\@LN{701}{10}
+\@writefile{toc}{\contentsline {section}{\numberline {A}Per-Cell Results}{11}{appendix.A}\protected@file@percent }
+\newlabel{app:cells}{{A}{11}{Per-Cell Results}{appendix.A}{}}
+\@LN{702}{10}
+\@LN{703}{10}
+\@LN{704}{10}
+\@LN{705}{10}
+\@LN{706}{10}
+\@LN{707}{10}
+\@LN{708}{10}
+\@LN{709}{10}
+\@LN{710}{10}
+\@LN{711}{10}
+\@LN{712}{10}
+\@LN{713}{10}
+\@LN{714}{10}
+\@LN{715}{10}
+\@LN{716}{10}
+\@LN{717}{10}
+\@LN{718}{10}
+\@LN{719}{10}
+\@LN{720}{10}
+\@LN{721}{10}
+\@LN{722}{10}
+\@LN{723}{10}
+\@LN{724}{10}
+\@LN{725}{10}
+\@LN{726}{10}
+\@LN{727}{10}
+\@LN{728}{10}
+\@writefile{toc}{\contentsline {section}{\numberline {B}Calibration Scores vs.\ Full-Data Scores}{11}{appendix.B}\protected@file@percent }
+\newlabel{app:calib}{{B}{11}{Calibration Scores vs.\ Full-Data Scores}{appendix.B}{}}
+\@LN{729}{10}
+\@LN{730}{10}
+\@LN{731}{10}
+\@LN{732}{10}
+\@LN{733}{10}
+\@LN{734}{10}
+\@LN{735}{10}
+\@LN{736}{10}
+\@LN{737}{10}
+\@LN{738}{10}
+\@writefile{toc}{\contentsline {paragraph}{Stage 4 (Figure\nobreakspace  {}\ref  {fig:app-calib}a, b).}{11}{section*.17}\protected@file@percent }
+\@LN{739}{10}
+\@LN{740}{10}
+\@LN{741}{10}
+\@LN{742}{10}
+\@LN{743}{10}
+\@LN{744}{10}
+\@LN{745}{10}
+\@LN{746}{10}
+\@LN{747}{10}
+\@LN{748}{10}
+\@LN{749}{10}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces \textbf  {Full-data results for every evaluated LongBench cell, Llama-3-8B-Instruct.} Per task: uniform, the rescaled Stage 2 winner (Winner) and NAS-refined (best of the Stage 4 search); bold: best in each column. The number under each task is the winner's natural average budget, at which Stage 1 found it. MOSAIC's final configuration beats uniform in 53 of 57 cells with a Stage 4 search, and the Winner alone in 49 of 60.\relax }}{11}{table.caption.11}\protected@file@percent }
+\newlabel{tab:app-cells}{{5}{11}{\textbf {Full-data results for every evaluated LongBench cell, Llama-3-8B-Instruct.} Per task: uniform, the rescaled Stage 2 winner (Winner) and NAS-refined (best of the Stage 4 search); bold: best in each column. The number under each task is the winner's natural average budget, at which Stage 1 found it. MOSAIC's final configuration beats uniform in 53 of 57 cells with a Stage 4 search, and the Winner alone in 49 of 60.\relax }{table.caption.11}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces \textbf  {Full-data results for every evaluated RULER cell, Llama-3-8B-Instruct.} Layout as in Table\nobreakspace  {}\ref  {tab:app-cells}; the number under each method is its winner's natural average budget. AdaKV at B64: only the rescaled winner was run, compared with Stage 2's uniform-64 configuration. MOSAIC's final configuration beats uniform in 21 of 21 cells with a Stage 4 search, and the Winner alone in 26 of 27.\relax }}{12}{table.caption.12}\protected@file@percent }
+\newlabel{tab:app-cells-ruler}{{6}{12}{\textbf {Full-data results for every evaluated RULER cell, Llama-3-8B-Instruct.} Layout as in Table~\ref {tab:app-cells}; the number under each method is its winner's natural average budget. AdaKV at B64: only the rescaled winner was run, compared with Stage 2's uniform-64 configuration. MOSAIC's final configuration beats uniform in 21 of 21 cells with a Stage 4 search, and the Winner alone in 26 of 27.\relax }{table.caption.12}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces \textbf  {Full-data results for every evaluated LongBench cell, Mistral-7B-Instruct-v0.2.} Layout as in Table\nobreakspace  {}\ref  {tab:app-cells}. SnapKV, H2O and AdaKV were searched with 30\% calibration and have no Summarization cells (only its Stage 1 search ran); H2O truncates prompts at 7.5K tokens, SnapKV and AdaKV at 31.5K. MOSAIC's final configuration beats uniform in 48 of 52 cells, and the Winner alone in 40 of 52.\relax }}{12}{table.caption.13}\protected@file@percent }
+\newlabel{tab:app-cells-mistral}{{7}{12}{\textbf {Full-data results for every evaluated LongBench cell, Mistral-7B-Instruct-v0.2.} Layout as in Table~\ref {tab:app-cells}. SnapKV, H2O and AdaKV were searched with 30\% calibration and have no Summarization cells (only its Stage 1 search ran); H2O truncates prompts at 7.5K tokens, SnapKV and AdaKV at 31.5K. MOSAIC's final configuration beats uniform in 48 of 52 cells, and the Winner alone in 40 of 52.\relax }{table.caption.13}{}}
+\@LN@col{1}
+\@LN{750}{11}
+\@LN{751}{11}
+\@writefile{toc}{\contentsline {paragraph}{Stage 1 fronts (Figure\nobreakspace  {}\ref  {fig:app-calib}c, d).}{12}{section*.18}\protected@file@percent }
+\@LN{752}{11}
+\@LN{753}{11}
+\@LN{754}{11}
+\@LN{755}{11}
+\@LN{756}{11}
+\@LN@col{2}
+\@LN{757}{11}
+\@LN{758}{11}
+\@LN{759}{11}
+\@LN{760}{11}
+\@LN{761}{11}
+\@LN{762}{11}
+\@LN{763}{11}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces \textbf  {Full-data results for every evaluated RULER cell, Mistral-7B-Instruct-v0.2.} Layout as in Table\nobreakspace  {}\ref  {tab:app-cells-ruler}. MOSAIC's final configuration beats uniform in 24 of 24 cells, and the Winner alone in 11 of 23.\relax }}{13}{table.caption.14}\protected@file@percent }
+\newlabel{tab:app-cells-mistral-ruler}{{8}{13}{\textbf {Full-data results for every evaluated RULER cell, Mistral-7B-Instruct-v0.2.} Layout as in Table~\ref {tab:app-cells-ruler}. MOSAIC's final configuration beats uniform in 24 of 24 cells, and the Winner alone in 11 of 23.\relax }{table.caption.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces \textbf  {Uniform vs.\ Stage 3 and Stage 4 at every target budget, Mistral-7B-Instruct-v0.2} (full data), drawn as Figure\nobreakspace  {}\ref  {fig:stages}. Rows: eviction method; columns: task. Stage 3: rescaled Stage 2 winner, no further search; Stage 4: NAS-refined, only at budgets where it ran.\relax }}{13}{figure.caption.16}\protected@file@percent }
+\newlabel{fig:app-stages-mistral}{{5}{13}{\textbf {Uniform vs.\ Stage 3 and Stage 4 at every target budget, Mistral-7B-Instruct-v0.2} (full data), drawn as Figure~\ref {fig:stages}. Rows: eviction method; columns: task. Stage 3: rescaled Stage 2 winner, no further search; Stage 4: NAS-refined, only at budgets where it ran.\relax }{figure.caption.16}{}}
+\@LN@col{1}
+\@LN{764}{12}
+\@LN{765}{12}
+\@writefile{toc}{\contentsline {paragraph}{Calibration ratio: a case study.}{13}{section*.21}\protected@file@percent }
+\@LN{766}{12}
+\@LN{767}{12}
+\@LN{768}{12}
+\@LN{769}{12}
+\@LN{770}{12}
+\@LN{771}{12}
+\@LN{772}{12}
+\@LN{773}{12}
+\@LN{774}{12}
+\@LN{775}{12}
+\@LN{776}{12}
+\@LN{777}{12}
+\@LN{778}{12}
+\@LN{779}{12}
+\@LN{780}{12}
+\@LN{781}{12}
+\@LN{782}{12}
+\@LN@col{2}
+\@LN{783}{12}
+\@LN{784}{12}
+\@LN{785}{12}
+\@LN{786}{12}
+\@writefile{toc}{\contentsline {section}{\numberline {C}Shape Transfer Across Tasks and Methods}{13}{appendix.C}\protected@file@percent }
+\newlabel{app:transfer}{{C}{13}{Shape Transfer Across Tasks and Methods}{appendix.C}{}}
+\@LN{787}{12}
+\@LN{788}{12}
+\@LN{789}{12}
+\@LN{790}{12}
+\@LN{791}{12}
+\@LN{792}{12}
+\@LN{793}{12}
+\@LN{794}{12}
+\@LN{795}{12}
+\@LN{796}{12}
+\@LN{797}{12}
+\@LN{798}{12}
+\@LN{799}{12}
+\@LN{800}{12}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces \textbf  {Calibration vs.\ full-data scores, Llama-3-8B-Instruct.} Circles: LongBench; triangles: RULER; bars: medians. Top: Stage 4 (10\% subset on both benchmarks), one marker per evaluated (task, budget) cell, whose candidates share one budget. Bottom: Stage 1 Pareto fronts (30\% on LongBench, 10\% on RULER) against their Stage 2 full-data re-evaluation, one marker per front (AdaKV: Single- and Multi-Doc QA). (a, c) Kendall's $\tau $ between the calibration and full-data rankings. On a front both scores rise with budget, so (c) is high and in 15 of 17 fronts equals $\tau $ between average budget and full-data score: it reflects the budget trend, not whether calibration finds the top configuration. (b, d) Regret: full-data points lost by taking the calibration-top configuration instead of the best re-evaluated one. In (d), full data prefers a cheaper configuration than the calibration-top one in 6 of 17 fronts (up to 0.73 points). ``Best'' refers to the re-evaluated pool only, and a zero median regret does not mean calibration always picks correctly (Table\nobreakspace  {}\ref  {tab:app-calib-summary} gives the Stage 4 counts).\relax }}{14}{figure.caption.20}\protected@file@percent }
+\newlabel{fig:app-calib}{{6}{14}{\textbf {Calibration vs.\ full-data scores, Llama-3-8B-Instruct.} Circles: LongBench; triangles: RULER; bars: medians. Top: Stage 4 (10\% subset on both benchmarks), one marker per evaluated (task, budget) cell, whose candidates share one budget. Bottom: Stage 1 Pareto fronts (30\% on LongBench, 10\% on RULER) against their Stage 2 full-data re-evaluation, one marker per front (AdaKV: Single- and Multi-Doc QA). (a, c) Kendall's $\tau $ between the calibration and full-data rankings. On a front both scores rise with budget, so (c) is high and in 15 of 17 fronts equals $\tau $ between average budget and full-data score: it reflects the budget trend, not whether calibration finds the top configuration. (b, d) Regret: full-data points lost by taking the calibration-top configuration instead of the best re-evaluated one. In (d), full data prefers a cheaper configuration than the calibration-top one in 6 of 17 fronts (up to 0.73 points). ``Best'' refers to the re-evaluated pool only, and a zero median regret does not mean calibration always picks correctly (Table~\ref {tab:app-calib-summary} gives the Stage 4 counts).\relax }{figure.caption.20}{}}
+\@LN@col{1}
+\@LN{801}{13}
+\@LN{802}{13}
+\@LN{803}{13}
+\@LN{804}{13}
+\@LN{805}{13}
+\@LN{806}{13}
+\@LN{807}{13}
+\@LN{808}{13}
+\@LN{809}{13}
+\@LN{810}{13}
+\@LN{811}{13}
+\@LN{812}{13}
+\@LN{813}{13}
+\@LN{814}{13}
+\@LN{815}{13}
+\@LN{816}{13}
+\@writefile{toc}{\contentsline {section}{\numberline {D}Search Cost}{14}{appendix.D}\protected@file@percent }
+\newlabel{app:cost}{{D}{14}{Search Cost}{appendix.D}{}}
+\@LN{817}{13}
+\@LN{818}{13}
+\@LN{819}{13}
+\@LN@col{2}
+\@LN{820}{13}
+\@LN{821}{13}
+\@LN{822}{13}
+\@LN{823}{13}
+\@LN{824}{13}
+\@LN{825}{13}
+\@LN{826}{13}
+\@LN{827}{13}
+\@LN{828}{13}
+\@LN{829}{13}
+\@LN{830}{13}
+\@LN{831}{13}
+\@LN{832}{13}
+\@LN{833}{13}
+\@LN{834}{13}
+\@LN{835}{13}
+\@LN{836}{13}
+\@LN{837}{13}
+\@LN{838}{13}
+\@LN{839}{13}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces \textbf  {Transferring winner shapes across tasks (a, b) and eviction methods (c, d)}, LongBench, full data. Each point is a gain over the receiving cell's uniform allocation at the same budget (dashed line): the transferred shape, rescaled as in Stage 3; the receiving cell's own rescaled Winner; and its own final configuration (the better of Winner and NAS-refined).\relax }}{15}{figure.caption.23}\protected@file@percent }
+\newlabel{fig:app-shape-transfer}{{7}{15}{\textbf {Transferring winner shapes across tasks (a, b) and eviction methods (c, d)}, LongBench, full data. Each point is a gain over the receiving cell's uniform allocation at the same budget (dashed line): the transferred shape, rescaled as in Stage 3; the receiving cell's own rescaled Winner; and its own final configuration (the better of Winner and NAS-refined).\relax }{figure.caption.23}{}}
+\@LN@col{1}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces \textbf  {One search, many budgets, Mistral-7B-Instruct-v0.2} (Table\nobreakspace  {}\ref  {tab:transfer} for Llama-3-8B-Instruct; columns as there). SnapKV, H2O and AdaKV have no LongBench Summarization cells.\relax }}{15}{table.caption.15}\protected@file@percent }
+\newlabel{tab:app-stages-mistral}{{9}{15}{\textbf {One search, many budgets, Mistral-7B-Instruct-v0.2} (Table~\ref {tab:transfer} for Llama-3-8B-Instruct; columns as there). SnapKV, H2O and AdaKV have no LongBench Summarization cells.\relax }{table.caption.15}{}}
+\@LN{840}{14}
+\@LN{841}{14}
+\@LN{842}{14}
+\@LN{843}{14}
+\@LN{844}{14}
+\@LN{845}{14}
+\@LN{846}{14}
+\@LN{847}{14}
+\@LN{848}{14}
+\@LN{849}{14}
+\@LN@col{2}
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces \textbf  {Stage 4 calibration (10\% subset) vs.\ full-data scores, summary.} Cells: (task, budget) pairs. Gap: mean calibration minus full-data score. $\tau $: mean Kendall correlation between the two rankings of each cell's re-evaluated configurations. Picks: cells where the calibration-best candidate is also full-data best. Regret: mean full-data points lost by trusting calibration.\relax }}{15}{table.caption.19}\protected@file@percent }
+\newlabel{tab:app-calib-summary}{{10}{15}{\textbf {Stage 4 calibration (10\% subset) vs.\ full-data scores, summary.} Cells: (task, budget) pairs. Gap: mean calibration minus full-data score. $\tau $: mean Kendall correlation between the two rankings of each cell's re-evaluated configurations. Picks: cells where the calibration-best candidate is also full-data best. Regret: mean full-data points lost by trusting calibration.\relax }{table.caption.19}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces \textbf  {Calibration ratio, one cell} (SnapKV, Code B512, 24 configurations, full data as reference). Gap: mean calibration minus full-data score.\relax }}{15}{table.caption.22}\protected@file@percent }
+\newlabel{tab:app-calib-ratio}{{11}{15}{\textbf {Calibration ratio, one cell} (SnapKV, Code B512, 24 configurations, full data as reference). Gap: mean calibration minus full-data score.\relax }{table.caption.22}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces \textbf  {MOSAIC Stage 1 cost}\relax }}{15}{table.caption.24}\protected@file@percent }
+\newlabel{tab:app-step1}{{12}{15}{\textbf {MOSAIC Stage 1 cost}\relax }{table.caption.24}{}}
+\citation{tang2024quest}
+\citation{liu2024kivi}
+\citation{hooper2024kvquant}
+\citation{liu2024minicache}
+\citation{cai2020ofa}
+\citation{liu2019darts}
+\@LN@col{1}
+\@LN{850}{15}
+\@writefile{toc}{\contentsline {section}{\numberline {E}Choice of the Per-Layer Floor}{16}{appendix.E}\protected@file@percent }
+\newlabel{app:floor}{{E}{16}{Choice of the Per-Layer Floor}{appendix.E}{}}
+\@LN{851}{15}
+\@LN{852}{15}
+\@LN{853}{15}
+\@LN{854}{15}
+\@LN{855}{15}
+\@LN{856}{15}
+\@LN{857}{15}
+\@LN{858}{15}
+\@LN{859}{15}
+\@writefile{lot}{\contentsline {table}{\numberline {13}{\ignorespaces \textbf  {Layers at the per-layer floor (out of 32) in MOSAIC's final configuration of each cell.}\relax }}{16}{table.caption.25}\protected@file@percent }
+\newlabel{tab:app-floor}{{13}{16}{\textbf {Layers at the per-layer floor (out of 32) in MOSAIC's final configuration of each cell.}\relax }{table.caption.25}{}}
+\@writefile{toc}{\contentsline {paragraph}{Controlled comparison.}{16}{section*.26}\protected@file@percent }
+\@LN{860}{15}
+\@LN{861}{15}
+\@LN{862}{15}
+\@LN{863}{15}
+\@LN{864}{15}
+\@LN{865}{15}
+\@LN{866}{15}
+\@writefile{lot}{\contentsline {table}{\numberline {14}{\ignorespaces \textbf  {Same rescaled winner under floor 64 and floor 16} (SnapKV, LongBench, full data). Negative $\Delta $ (bold): floor 64 is better.\relax }}{16}{table.caption.27}\protected@file@percent }
+\newlabel{tab:app-floor-ablation}{{14}{16}{\textbf {Same rescaled winner under floor 64 and floor 16} (SnapKV, LongBench, full data). Negative $\Delta $ (bold): floor 64 is better.\relax }{table.caption.27}{}}
+\@LN{867}{15}
+\@LN{868}{15}
+\@writefile{toc}{\contentsline {section}{\numberline {F}AdaKV and L2Norm Per-Layer Allocations}{16}{appendix.F}\protected@file@percent }
+\newlabel{app:adakv-shapes}{{F}{16}{AdaKV and L2Norm Per-Layer Allocations}{appendix.F}{}}
+\@LN{869}{15}
+\@LN{870}{15}
+\@LN{871}{15}
+\@LN{872}{15}
+\@LN{873}{15}
+\@LN@col{2}
+\@LN{874}{15}
+\@LN{875}{15}
+\@LN{876}{15}
+\@LN{877}{15}
+\@LN{878}{15}
+\@LN{879}{15}
+\@LN{880}{15}
+\@LN{881}{15}
+\@writefile{toc}{\contentsline {section}{\numberline {G}Further Related Work}{16}{appendix.G}\protected@file@percent }
+\newlabel{app:related}{{G}{16}{Further Related Work}{appendix.G}{}}
+\@LN{882}{15}
+\@LN{883}{15}
+\@LN{884}{15}
+\@LN{885}{15}
+\@LN{886}{15}
+\@LN{887}{15}
+\@LN{888}{15}
+\@LN{889}{15}
+\@LN{890}{15}
+\@LN{891}{15}
+\@LN{892}{15}
+\@LN{893}{15}
+\@LN{894}{15}
+\@LN{895}{15}
+\@LN{896}{15}
+\@LN{897}{15}
+\@LN{898}{15}
+\@LN{899}{15}
+\@writefile{toc}{\contentsline {section}{\numberline {H}Reproducibility Details}{16}{appendix.H}\protected@file@percent }
+\newlabel{app:repro}{{H}{16}{Reproducibility Details}{appendix.H}{}}
+\@LN{900}{15}
+\@LN{901}{15}
+\@LN{902}{15}
+\@writefile{toc}{\contentsline {paragraph}{Budget decoding.}{16}{section*.34}\protected@file@percent }
+\@LN{903}{15}
+\@LN{904}{15}
+\@LN{905}{15}
+\@LN{906}{15}
+\@LN{907}{15}
+\@LN{908}{15}
+\@LN{909}{15}
+\@LN{910}{15}
+\@LN{911}{15}
+\@LN{912}{15}
+\@LN{913}{15}
+\@LN{914}{15}
+\@LN{915}{15}
+\@LN{916}{15}
+\@LN{917}{15}
+\@LN{918}{15}
+\@LN{919}{15}
+\@LN{920}{15}
+\@LN{921}{15}
+\@LN{922}{15}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces \textbf  {AdaKV per-layer allocations}, drawn as Figure\nobreakspace  {}\ref  {fig:heatmap}. \textit  {(a)} Stage 2 winners at their natural average budget (left). \textit  {(b)} MOSAIC's final configuration for every cell (the better of Winner and NAS-refined), with the target budget on the left and a marker on the right for which of the two it is. \textit  {(c)} For each layer, the share of the 19 allocations in (a) and (b) that give it more than its uniform share; navy bars exceed 50\%. Colour: each layer's budget divided by the row mean, on a log$_2$ scale (blue: more than the uniform share; red: less).\relax }}{17}{figure.caption.29}\protected@file@percent }
+\newlabel{fig:app-adakv-shapes}{{8}{17}{\textbf {AdaKV per-layer allocations}, drawn as Figure~\ref {fig:heatmap}. \textit {(a)} Stage 2 winners at their natural average budget (left). \textit {(b)} MOSAIC's final configuration for every cell (the better of Winner and NAS-refined), with the target budget on the left and a marker on the right for which of the two it is. \textit {(c)} For each layer, the share of the 19 allocations in (a) and (b) that give it more than its uniform share; navy bars exceed 50\%. Colour: each layer's budget divided by the row mean, on a log$_2$ scale (blue: more than the uniform share; red: less).\relax }{figure.caption.29}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces \textbf  {L2Norm per-layer allocations}, drawn as Figure\nobreakspace  {}\ref  {fig:heatmap}. \textit  {(a)} Stage 2 winners at their natural average budget (left). \textit  {(b)} MOSAIC's final configuration for every cell (the better of Winner and NAS-refined), with the target budget on the left and a marker on the right for which of the two it is. \textit  {(c)} For each layer, the share of the 27 allocations in (a) and (b) that give it more than its uniform share; navy bars exceed 50\%. Colour: each layer's budget divided by the row mean, on a log$_2$ scale (blue: more than the uniform share; red: less).\relax }}{17}{figure.caption.30}\protected@file@percent }
+\newlabel{fig:app-l2norm-shapes}{{9}{17}{\textbf {L2Norm per-layer allocations}, drawn as Figure~\ref {fig:heatmap}. \textit {(a)} Stage 2 winners at their natural average budget (left). \textit {(b)} MOSAIC's final configuration for every cell (the better of Winner and NAS-refined), with the target budget on the left and a marker on the right for which of the two it is. \textit {(c)} For each layer, the share of the 27 allocations in (a) and (b) that give it more than its uniform share; navy bars exceed 50\%. Colour: each layer's budget divided by the row mean, on a log$_2$ scale (blue: more than the uniform share; red: less).\relax }{figure.caption.30}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces \textbf  {SnapKV and H2O per-layer allocations, Mistral-7B-Instruct-v0.2}, drawn as Figure\nobreakspace  {}\ref  {fig:heatmap}. \textit  {(a)} Stage 2 winners at their natural average budget (left). \textit  {(b)} MOSAIC's final configuration for every cell (the better of Winner and NAS-refined), with the target budget on the left and a marker on the right for which of the two it is. \textit  {(c)} For each layer, the share of the 44 allocations in (a) and (b) that give it more than its uniform share; navy bars exceed 50\%. Colour: each layer's budget divided by the row mean, on a log$_2$ scale (blue: more than the uniform share; red: less).\relax }}{18}{figure.caption.31}\protected@file@percent }
+\newlabel{fig:app-mistral-shapes}{{10}{18}{\textbf {SnapKV and H2O per-layer allocations, Mistral-7B-Instruct-v0.2}, drawn as Figure~\ref {fig:heatmap}. \textit {(a)} Stage 2 winners at their natural average budget (left). \textit {(b)} MOSAIC's final configuration for every cell (the better of Winner and NAS-refined), with the target budget on the left and a marker on the right for which of the two it is. \textit {(c)} For each layer, the share of the 44 allocations in (a) and (b) that give it more than its uniform share; navy bars exceed 50\%. Colour: each layer's budget divided by the row mean, on a log$_2$ scale (blue: more than the uniform share; red: less).\relax }{figure.caption.31}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces \textbf  {AdaKV per-layer allocations, Mistral-7B-Instruct-v0.2}, drawn as Figure\nobreakspace  {}\ref  {fig:heatmap}. \textit  {(a)} Stage 2 winners at their natural average budget (left). \textit  {(b)} MOSAIC's final configuration for every cell (the better of Winner and NAS-refined), with the target budget on the left and a marker on the right for which of the two it is. \textit  {(c)} For each layer, the share of the 22 allocations in (a) and (b) that give it more than its uniform share; navy bars exceed 50\%. Colour: each layer's budget divided by the row mean, on a log$_2$ scale (blue: more than the uniform share; red: less).\relax }}{18}{figure.caption.32}\protected@file@percent }
+\newlabel{fig:app-mistral-adakv-shapes}{{11}{18}{\textbf {AdaKV per-layer allocations, Mistral-7B-Instruct-v0.2}, drawn as Figure~\ref {fig:heatmap}. \textit {(a)} Stage 2 winners at their natural average budget (left). \textit {(b)} MOSAIC's final configuration for every cell (the better of Winner and NAS-refined), with the target budget on the left and a marker on the right for which of the two it is. \textit {(c)} For each layer, the share of the 22 allocations in (a) and (b) that give it more than its uniform share; navy bars exceed 50\%. Colour: each layer's budget divided by the row mean, on a log$_2$ scale (blue: more than the uniform share; red: less).\relax }{figure.caption.32}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {15}{\ignorespaces \textbf  {Per-budget search cost and score, EvolKV direct vs.\ MOSAIC Stage 4} (SnapKV, LongBench, full-data scores, A100). EvolKV: 600 evaluations plus one final evaluation. MOSAIC: $\leq $150 evaluations of each Stage 4 run; its GPU-hours include the full-data re-evaluation of three candidates but exclude the one-time Stages 1--2. $\Delta $: NAS-refined minus EvolKV; losses in bold.\relax }}{19}{table.caption.28}\protected@file@percent }
+\newlabel{tab:app-cost}{{15}{19}{\textbf {Per-budget search cost and score, EvolKV direct vs.\ MOSAIC Stage 4} (SnapKV, LongBench, full-data scores, A100). EvolKV: 600 evaluations plus one final evaluation. MOSAIC: $\leq $150 evaluations of each Stage 4 run; its GPU-hours include the full-data re-evaluation of three candidates but exclude the one-time Stages 1--2. $\Delta $: NAS-refined minus EvolKV; losses in bold.\relax }{table.caption.28}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces \textbf  {L2Norm per-layer allocations, Mistral-7B-Instruct-v0.2}, drawn as Figure\nobreakspace  {}\ref  {fig:heatmap}. \textit  {(a)} Stage 2 winners at their natural average budget (left). \textit  {(b)} MOSAIC's final configuration for every cell (the better of Winner and NAS-refined), with the target budget on the left and a marker on the right for which of the two it is. \textit  {(c)} For each layer, the share of the 27 allocations in (a) and (b) that give it more than its uniform share; navy bars exceed 50\%. Colour: each layer's budget divided by the row mean, on a log$_2$ scale (blue: more than the uniform share; red: less).\relax }}{19}{figure.caption.33}\protected@file@percent }
+\newlabel{fig:app-mistral-l2norm-shapes}{{12}{19}{\textbf {L2Norm per-layer allocations, Mistral-7B-Instruct-v0.2}, drawn as Figure~\ref {fig:heatmap}. \textit {(a)} Stage 2 winners at their natural average budget (left). \textit {(b)} MOSAIC's final configuration for every cell (the better of Winner and NAS-refined), with the target budget on the left and a marker on the right for which of the two it is. \textit {(c)} For each layer, the share of the 27 allocations in (a) and (b) that give it more than its uniform share; navy bars exceed 50\%. Colour: each layer's budget divided by the row mean, on a log$_2$ scale (blue: more than the uniform share; red: less).\relax }{figure.caption.33}{}}
+\@LN@col{1}
+\@LN{923}{18}
+\@LN{924}{18}
+\@LN{925}{18}
+\@LN{926}{18}
+\@writefile{toc}{\contentsline {paragraph}{Rescaling the Stage 2 winner.}{19}{section*.35}\protected@file@percent }
+\@LN{927}{18}
+\@LN{928}{18}
+\@LN{929}{18}
+\@LN{930}{18}
+\@LN{931}{18}
+\@LN{932}{18}
+\@LN{933}{18}
+\@writefile{toc}{\contentsline {paragraph}{Per-layer floor and cap.}{19}{section*.36}\protected@file@percent }
+\@LN{934}{18}
+\@LN{935}{18}
+\@LN@col{2}
+\@LN{936}{18}
+\@LN{937}{18}
+\@LN{938}{18}
+\@LN{939}{18}
+\@writefile{toc}{\contentsline {paragraph}{Stopping rules.}{19}{section*.37}\protected@file@percent }
+\@LN{940}{18}
+\@LN{941}{18}
+\@LN{942}{18}
+\@LN{943}{18}
+\@LN{944}{18}
+\@writefile{toc}{\contentsline {paragraph}{Candidate provenance.}{19}{section*.38}\protected@file@percent }
+\@LN{945}{18}
+\@LN{946}{18}
+\@LN{947}{18}
+\@LN{948}{18}
+\citation{yu2025evolkv}
+\citation{dao2024flashattention2}
+\@LN@col{1}
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces MOSAIC for one (task, eviction method).\relax }}{20}{algorithm.1}\protected@file@percent }
+\newlabel{alg:mosaic}{{1}{20}{MOSAIC for one (task, eviction method).\relax }{algorithm.1}{}}
+\@LN{949}{19}
+\@LN{950}{19}
+\@LN{951}{19}
+\@LN{952}{19}
+\@LN{953}{19}
+\@LN{954}{19}
+\@LN{955}{19}
+\@writefile{toc}{\contentsline {paragraph}{Stage 4 initial design.}{20}{section*.39}\protected@file@percent }
+\@LN{956}{19}
+\@LN{957}{19}
+\@LN{958}{19}
+\@LN{959}{19}
+\@LN{960}{19}
+\@LN{961}{19}
+\@LN{962}{19}
+\@LN{963}{19}
+\@writefile{toc}{\contentsline {paragraph}{EvolKV baseline (expanded).}{20}{section*.40}\protected@file@percent }
+\@LN{964}{19}
+\@LN{965}{19}
+\@LN{966}{19}
+\@LN{967}{19}
+\@LN{968}{19}
+\@LN{969}{19}
+\@LN@col{2}
+\@LN{970}{19}
+\@writefile{toc}{\contentsline {paragraph}{Hardware.}{20}{section*.41}\protected@file@percent }
+\@LN{971}{19}
+\@LN{972}{19}
+\@LN{973}{19}
+\@LN{974}{19}
+\@writefile{toc}{\contentsline {section}{\numberline {I}Subtask and Dataset Breakdown}{20}{appendix.I}\protected@file@percent }
+\newlabel{app:breakdown}{{I}{20}{Subtask and Dataset Breakdown}{appendix.I}{}}
+\@LN{975}{19}
+\@LN{976}{19}
+\@LN{977}{19}
+\@LN{978}{19}
+\@LN{979}{19}
+\@LN{980}{19}
+\@LN{981}{19}
+\@writefile{toc}{\contentsline {subsection}{\numberline {I.1}RULER Subtask Breakdown}{20}{subsection.I.1}\protected@file@percent }
+\newlabel{app:ruler}{{I.1}{20}{RULER Subtask Breakdown}{subsection.I.1}{}}
+\@LN{982}{19}
+\@LN{983}{19}
+\@LN{984}{19}
+\@LN{985}{19}
+\@LN{986}{19}
+\@LN{987}{19}
+\@LN{988}{19}
+\@LN{989}{19}
+\@LN{990}{19}
+\@LN{991}{19}
+\@LN{992}{19}
+\@LN{993}{19}
+\@LN{994}{19}
+\@LN{995}{19}
+\@LN{996}{19}
+\@LN{997}{19}
+\@LN{998}{19}
+\@LN{999}{19}
+\@LN{1000}{19}
+\@writefile{toc}{\contentsline {subsection}{\numberline {I.2}LongBench Dataset Breakdown}{20}{subsection.I.2}\protected@file@percent }
+\newlabel{app:dataset-reg}{{I.2}{20}{LongBench Dataset Breakdown}{subsection.I.2}{}}
+\@LN{1001}{19}
+\@LN{1002}{19}
+\@LN{1003}{19}
+\@LN{1004}{19}
+\@LN{1005}{19}
+\@LN{1006}{19}
+\@LN{1007}{19}
+\@LN{1008}{19}
+\@LN{1009}{19}
+\@LN{1010}{19}
+\@LN{1011}{19}
+\@LN{1012}{19}
+\@writefile{lot}{\contentsline {table}{\numberline {16}{\ignorespaces \textbf  {RULER subtask accuracy (string match, \%), uniform vs.\ MOSAIC per cell, Llama-3-8B-Instruct.} AdaKV B64 has only the rescaled winner, compared with uniform-64 from Stage 2.\relax }}{21}{table.caption.43}\protected@file@percent }
+\newlabel{tab:app-ruler}{{16}{21}{\textbf {RULER subtask accuracy (string match, \%), uniform vs.\ MOSAIC per cell, Llama-3-8B-Instruct.} AdaKV B64 has only the rescaled winner, compared with uniform-64 from Stage 2.\relax }{table.caption.43}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces \textbf  {RULER subtask gains of MOSAIC over uniform, Llama-3-8B-Instruct} (the $\Delta $ rows of Table\nobreakspace  {}\ref  {tab:app-ruler}, points). Rows: subtasks and their mean; columns: budget. Red: MOSAIC above uniform; blue: below.\relax }}{22}{figure.caption.42}\protected@file@percent }
+\newlabel{fig:app-heat-ruler}{{13}{22}{\textbf {RULER subtask gains of MOSAIC over uniform, Llama-3-8B-Instruct} (the $\Delta $ rows of Table~\ref {tab:app-ruler}, points). Rows: subtasks and their mean; columns: budget. Red: MOSAIC above uniform; blue: below.\relax }{figure.caption.42}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces \textbf  {RULER subtask gains of MOSAIC over uniform, Mistral-7B-Instruct-v0.2} (the $\Delta $ rows of Table\nobreakspace  {}\ref  {tab:app-ruler-mistral}, points), drawn as Figure\nobreakspace  {}\ref  {fig:app-heat-ruler}.\relax }}{22}{figure.caption.44}\protected@file@percent }
+\newlabel{fig:app-heat-ruler-mistral}{{14}{22}{\textbf {RULER subtask gains of MOSAIC over uniform, Mistral-7B-Instruct-v0.2} (the $\Delta $ rows of Table~\ref {tab:app-ruler-mistral}, points), drawn as Figure~\ref {fig:app-heat-ruler}.\relax }{figure.caption.44}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces \textbf  {LongBench dataset gains of MOSAIC over uniform, Llama-3-8B-Instruct} (full data, points; the uniform and MOSAIC rows of Table\nobreakspace  {}\ref  {tab:app-lb}). Rows: datasets grouped by category; columns: budget; grey: no cell. Red: MOSAIC above uniform; blue: below.\relax }}{22}{figure.caption.46}\protected@file@percent }
+\newlabel{fig:app-heat-lb}{{15}{22}{\textbf {LongBench dataset gains of MOSAIC over uniform, Llama-3-8B-Instruct} (full data, points; the uniform and MOSAIC rows of Table~\ref {tab:app-lb}). Rows: datasets grouped by category; columns: budget; grey: no cell. Red: MOSAIC above uniform; blue: below.\relax }{figure.caption.46}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {17}{\ignorespaces \textbf  {RULER subtask accuracy (string match, \%), uniform vs.\ MOSAIC per cell, Mistral-7B-Instruct-v0.2.}\relax }}{23}{table.caption.45}\protected@file@percent }
+\newlabel{tab:app-ruler-mistral}{{17}{23}{\textbf {RULER subtask accuracy (string match, \%), uniform vs.\ MOSAIC per cell, Mistral-7B-Instruct-v0.2.}\relax }{table.caption.45}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces \textbf  {LongBench dataset gains of MOSAIC over uniform, Mistral-7B-Instruct-v0.2} (full data, points; the uniform and MOSAIC rows of Table\nobreakspace  {}\ref  {tab:app-lb-mistral}), drawn as Figure\nobreakspace  {}\ref  {fig:app-heat-lb}; both panels share one colour scale. Top: SnapKV, H2O and AdaKV, which have no Summarization cells; bottom: L2Norm, all four tasks.\relax }}{24}{figure.caption.47}\protected@file@percent }
+\newlabel{fig:app-heat-lb-mistral}{{16}{24}{\textbf {LongBench dataset gains of MOSAIC over uniform, Mistral-7B-Instruct-v0.2} (full data, points; the uniform and MOSAIC rows of Table~\ref {tab:app-lb-mistral}), drawn as Figure~\ref {fig:app-heat-lb}; both panels share one colour scale. Top: SnapKV, H2O and AdaKV, which have no Summarization cells; bottom: L2Norm, all four tasks.\relax }{figure.caption.47}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {18}{\ignorespaces \textbf  {LongBench dataset scores, uniform vs.\ MOSAIC per cell, Llama-3-8B-Instruct} (full data); bold: the better of the two in each column. NQA: NarrativeQA; MFQA: MultiFieldQA-en; HQA: HotpotQA; 2Wiki: 2WikiMQA; GovRep: GovReport; MNews: Multi-News; RepoB-P: RepoBench-P.\relax }}{25}{table.caption.48}\protected@file@percent }
+\newlabel{tab:app-lb}{{18}{25}{\textbf {LongBench dataset scores, uniform vs.\ MOSAIC per cell, Llama-3-8B-Instruct} (full data); bold: the better of the two in each column. NQA: NarrativeQA; MFQA: MultiFieldQA-en; HQA: HotpotQA; 2Wiki: 2WikiMQA; GovRep: GovReport; MNews: Multi-News; RepoB-P: RepoBench-P.\relax }{table.caption.48}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {19}{\ignorespaces \textbf  {LongBench dataset scores, uniform vs.\ MOSAIC per cell, Mistral-7B-Instruct-v0.2} (full data); bold: the better of the two in each column. NQA: NarrativeQA; MFQA: MultiFieldQA-en; HQA: HotpotQA; 2Wiki: 2WikiMQA; GovRep: GovReport; MNews: Multi-News; RepoB-P: RepoBench-P. SnapKV, H2O and AdaKV (top) have no Summarization cells; L2Norm (bottom) covers all four tasks.\relax }}{26}{table.caption.49}\protected@file@percent }
+\newlabel{tab:app-lb-mistral}{{19}{26}{\textbf {LongBench dataset scores, uniform vs.\ MOSAIC per cell, Mistral-7B-Instruct-v0.2} (full data); bold: the better of the two in each column. NQA: NarrativeQA; MFQA: MultiFieldQA-en; HQA: HotpotQA; 2Wiki: 2WikiMQA; GovRep: GovReport; MNews: Multi-News; RepoB-P: RepoBench-P. SnapKV, H2O and AdaKV (top) have no Summarization cells; L2Norm (bottom) covers all four tasks.\relax }{table.caption.49}{}}
+\gdef \@abspage@last{26}

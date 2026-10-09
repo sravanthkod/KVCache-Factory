@@ -1,0 +1,53 @@
+% Shape transfer across tasks and eviction methods (Appendix C): gain over the receiving cell's uniform allocation.
+% Data: python3 ../make_appendix.py writes data/transfer_{1,2,3,4}.dat (x: 1,2,3 = B128, B512, B1024)
+\documentclass[border=2pt]{standalone}
+\usepackage[scaled=0.92]{helvet}
+\renewcommand\familydefault{\sfdefault}
+\usepackage[T1]{fontenc}
+\usepackage{sansmath}
+\sansmath
+\usepackage{pgfplots}
+\usepgfplotslibrary{groupplots}
+\usetikzlibrary{calc}
+\pgfplotsset{compat=1.17}
+\definecolor{chartlight}{HTML}{8FA6BC}
+\definecolor{chartdark}{HTML}{1F4E79}
+\definecolor{ink}{HTML}{2B2B2B}
+\pgfplotsset{
+  tr/.style={scale only axis, width=3.35cm, height=3.0cm, xmin=0.6, xmax=3.4, ymin=-1.5, ymax=3.2,
+    xtick={1,2,3}, xticklabels={128,512,1024}, ytick={-1,0,1,2,3},
+    x tick label style={font=\scriptsize, text=ink!85}, y tick label style={font=\scriptsize, text=ink!85},
+    tick align=outside, major tick length=2pt, tick style={black!45, line width=0.4pt},
+    axis line style={black!35, line width=0.4pt}, axis x line*=bottom, axis y line*=left,
+    ymajorgrids, grid style={black!9, line width=0.3pt},
+    title style={font=\scriptsize\bfseries, text=ink, align=center, yshift=-3pt},
+    xlabel={budget $B$}, xlabel style={font=\scriptsize, text=ink, yshift=3pt},
+    ylabel style={font=\scriptsize, text=ink, yshift=-2pt}, clip=false},
+  sTr/.style={mark=*, mark size=2.0pt, line width=0.9pt, draw=chartdark, mark options={fill=chartdark, draw=white, line width=0.3pt}},
+  sWin/.style={mark=triangle*, mark size=2.2pt, line width=0.5pt, densely dashed, draw=chartlight, mark options={solid, fill=chartlight, draw=chartdark, line width=0.35pt}},
+  sFin/.style={mark=square*, mark size=1.6pt, line width=0.5pt, densely dotted, draw=ink!60, mark options={solid, fill=white, draw=ink!80, line width=0.5pt}},
+}
+\newcommand{\zero}{\draw[black!50, densely dashed, line width=0.5pt] (axis cs:0.6,0) -- (axis cs:3.4,0);}
+\newcommand{\series}[1]{%
+  \addplot[sTr] table[x=x, y=tr] {data/transfer_#1.dat};
+  \addplot[sWin] table[x=x, y=win] {data/transfer_#1.dat};
+  \addplot[sFin] table[x=x, y=fin] {data/transfer_#1.dat};}
+\begin{document}
+\begin{tikzpicture}
+\begin{groupplot}[group style={group size=4 by 1, horizontal sep=0.75cm, yticklabels at=edge left}]
+  \nextgroupplot[tr, title={(a) SnapKV: Code shape\\on Single-Doc QA}, ylabel={gain over uniform (points)},
+    legend style={font=\scriptsize, draw=none, fill=none, legend columns=3, column sep=12pt}, legend to name=trleg]
+    \zero
+    \addplot[sTr] table[x=x, y=tr] {data/transfer_1.dat}; \addlegendentry{Transferred shape}
+    \addplot[sWin] table[x=x, y=win] {data/transfer_1.dat}; \addlegendentry{Receiving cell's own Winner}
+    \addplot[sFin] table[x=x, y=fin] {data/transfer_1.dat}; \addlegendentry{Receiving cell's own final}
+  \nextgroupplot[tr, title={(b) SnapKV: Single-Doc QA\\shape on Code}] \zero \series{2}
+  \nextgroupplot[tr, title={(c) Code: H2O shape\\under SnapKV}] \zero \series{3}
+  \nextgroupplot[tr, title={(d) Code: SnapKV shape\\under H2O}] \zero \series{4}
+\end{groupplot}
+\path (group c1r1.north west) -- (group c2r1.north east) node[midway, above=19pt, font=\small\bfseries, text=ink] {Across tasks};
+\path (group c3r1.north west) -- (group c4r1.north east) node[midway, above=19pt, font=\small\bfseries, text=ink] {Across eviction methods};
+\draw[black!25, line width=0.4pt] ($(group c2r1.north east)!0.5!(group c3r1.north west)+(0,0.95)$) -- ($(group c2r1.south east)!0.5!(group c3r1.south west)+(0,-0.6)$);
+\node[anchor=north] at ($(group c2r1.south east)!0.5!(group c3r1.south west)+(0,-0.75)$) {\pgfplotslegendfromname{trleg}};
+\end{tikzpicture}
+\end{document}

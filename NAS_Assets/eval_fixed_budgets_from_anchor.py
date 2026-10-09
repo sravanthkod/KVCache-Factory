@@ -29,6 +29,11 @@ Usage (from NAS_Assets/, PYTHONPATH must include the repo root):
   # Sanity-check the decoded budgets (no GPU / no eval) before spending compute:
   python3 eval_fixed_budgets_from_anchor.py anchors/anchor_h2o_1234.txt \\
       --method h2o --targets 64,128,256,512 --dry_run
+
+  # Pure uniform-budget baseline sweep — no anchor/winner shape needed at all
+  # (e.g. for a brand-new method with no Step-1 winner yet):
+  python3 eval_fixed_budgets_from_anchor.py --uniform_only --method l2norm \\
+      --benchmark ruler --targets 64,128,256,512,1024,2048,4096
 """
 
 import argparse
@@ -37,8 +42,6 @@ import subprocess
 import sys
 
 import numpy as np
-
-from run_ruler_lamp import x_point_to_budgets_continuous
 
 
 def build_snapshot_rows(anchor_budgets, target, num_layers):
@@ -54,13 +57,18 @@ def main():
                                       formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("anchor_file", help="Winner-shape anchor (32 budgets), e.g. from extract_winner_anchor.py")
     parser.add_argument("--method", default="snapkv")
+    parser.add_argument("--benchmark", default="ruler", choices=["ruler", "longbench"],
+                        help="Which benchmark's decoder/eval script to use (default: ruler, "
+                             "unchanged from prior behavior)")
     parser.add_argument("--targets", default="64,128,256,512",
                         help="Comma-separated target mean budgets to evaluate")
-    parser.add_argument("--base_category", default="RULER_ALL",
-                        help="Base RULER group name in ruler_clustering.json (output dirs are "
-                             "<base_category>_B<T>/<method>/)")
+    parser.add_argument("--base_category", default=None,
+                        help="Base group name in ruler_clustering.json / data_clustering.json "
+                             "(output dirs are <base_category>_B<T>/<method>/). "
+                             "Defaults to RULER_ALL for --benchmark ruler; required for --benchmark longbench "
+                             "(e.g. SINGLE_DOCUMENT_QA, MULTI_DOCUMENT_QA, CODE)")
     parser.add_argument("--sample_ratio", type=float, default=1.0)
-    parser.add_argument("--min_budget", type=int, default=16)
+    parser.add_argument("--min_budget", type=int, default=64)
     parser.add_argument("--max_budget", type=int, default=4096)
     parser.add_argument("--gpu", default=None, help="CUDA_VISIBLE_DEVICES for the eval subprocess "
                                                      "(default: inherit current environment)")
@@ -68,7 +76,24 @@ def main():
         "PYTHON_BIN", "/home/test/miniconda/envs/cakekv/bin/python"))
     parser.add_argument("--dry_run", action="store_true",
                         help="Only print decoded budgets and sanity-check sums; no eval subprocess")
+    parser.add_argument("--winner_only", action="store_true",
+                        help="Skip the uniform row — use when a validated uniform score for this "
+                             "method/target already exists elsewhere (e.g. a standalone budget "
+                             "sweep, or a slice search's own row-1 anchor). Halves the eval cost.")
     args = parser.parse_args()
+
+    if args.benchmark == "ruler":
+        from run_ruler_lamp import x_point_to_budgets_continuous
+        eval_script = "eval_top_configs_ruler.py"
+        base_category = args.base_category or "RULER_ALL"
+    else:
+        from run_longbench_lamp import x_point_to_budgets_continuous
+        eval_script = "eval_top_configs_longbench.py"
+        if args.base_category is None:
+            raise SystemExit("--base_category is required for --benchmark longbench "
+                             "(e.g. SINGLE_DOCUMENT_QA, MULTI_DOCUMENT_QA, CODE)")
+        base_category = args.base_category
+    args.base_category = base_category
 
     anchor_budgets = np.loadtxt(args.anchor_file).reshape(-1)
     num_layers = len(anchor_budgets)
@@ -83,7 +108,8 @@ def main():
         uniform_b = x_point_to_budgets_continuous(uniform_x, num_layers, T, args.min_budget, args.max_budget)
         winner_b = x_point_to_budgets_continuous(winner_x, num_layers, T, args.min_budget, args.max_budget)
         expected_sum = num_layers * T
-        for label, b in (("uniform", uniform_b), ("winner", winner_b)):
+        checks = (("winner", winner_b),) if args.winner_only else (("uniform", uniform_b), ("winner", winner_b))
+        for label, b in checks:
             actual_sum = sum(b)
             status = "OK" if actual_sum == expected_sum else "MISMATCH"
             print(f"[B{T}] {label}: sum={actual_sum} (expected {expected_sum}) [{status}] budgets={b}")
@@ -99,10 +125,11 @@ def main():
         os.makedirs(top_configs_dir, exist_ok=True)
         snapshot_path = os.path.join(top_configs_dir, "fixed_budget_snapshot.txt")
 
-        rows = np.vstack([
+        row_list = [np.concatenate([winner_x, [0.0, 0.0]])] if args.winner_only else [
             np.concatenate([uniform_x, [0.0, 0.0]]),
             np.concatenate([winner_x, [0.0, 0.0]]),
-        ])
+        ]
+        rows = np.vstack(row_list)
         np.savetxt(snapshot_path, rows)
 
         results_csv = os.path.join(top_configs_dir, "eval_results.csv")
@@ -116,14 +143,15 @@ def main():
         if args.gpu is not None:
             env["CUDA_VISIBLE_DEVICES"] = args.gpu
 
-        cmd = [args.python_bin, "eval_top_configs_ruler.py", category,
+        cmd = [args.python_bin, eval_script, category,
                "--method", args.method, "--all_rows",
                "--sample_ratio", str(args.sample_ratio),
-               "--output_file", snapshot_path]
+               "--output_file", snapshot_path,
+               "--save_predictions"]
         print(f"[B{T}] running: {' '.join(cmd)}")
         result = subprocess.run(cmd, cwd=script_dir, env=env)
         if result.returncode != 0:
-            raise SystemExit(f"eval_top_configs_ruler.py failed for target {T} "
+            raise SystemExit(f"{eval_script} failed for target {T} "
                               f"(exit code {result.returncode})")
         print(f"[B{T}] done -> {results_csv}")
 
