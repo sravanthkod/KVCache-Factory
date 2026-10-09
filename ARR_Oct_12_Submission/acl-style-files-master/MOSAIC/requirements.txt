@@ -1,0 +1,21 @@
+# Versions of the environment used for the paper's experiments (Python 3.10, CUDA 12.4).
+torch==2.6.0
+transformers==4.43.3
+tokenizers==0.19.1
+accelerate==1.13.0
+flash-attn==2.7.4.post1   # needs a CUDA build environment: pip install flash-attn --no-build-isolation
+numpy==2.2.6
+scipy==1.15.3
+scikit-learn==1.7.2
+matplotlib==3.10.9
+seaborn==0.13.2
+pandas==2.3.3
+datasets==2.19.2
+sentencepiece==0.2.1
+tqdm==4.66.1
+# LongBench scoring (metrics.py)
+fuzzywuzzy==0.18.0
+jieba==0.42.1
+rouge==1.0.1
+# only for the EvolKV-style baseline (nas/run_grouped_cmaes.py)
+cma==4.4.4
